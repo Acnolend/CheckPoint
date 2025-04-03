@@ -50,6 +50,7 @@ fun Home(navController: NavController) {
                 Spacer(modifier = Modifier.height(48.dp))
                 Box(
                     Modifier
+                        .padding(16.dp)
                         .fillMaxWidth()
                         .height(80.dp)
                         .background(Color.White)
