@@ -9,5 +9,6 @@ data class Subscription(
     val name: SubscriptionName,
     val image: SubscriptionImage,
     val cost: SubscriptionCost,
-    val reminder: SubscriptionReminder
+    val reminder: SubscriptionReminder,
+    val ID: String
 )

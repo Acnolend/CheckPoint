@@ -1,5 +1,6 @@
 package com.example.checkpoint.ui.views
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,19 +13,39 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.checkpoint.R
+import com.example.checkpoint.application.services.serviceReadSubscription
+import com.example.checkpoint.application.usecases.usecaseReadSubscription
+import com.example.checkpoint.core.backend.api.appwrite.AppwriteService
+import com.example.checkpoint.core.backend.api.appwrite.AuthService
+import com.example.checkpoint.core.backend.api.appwrite.SubscriptionRepository
+import com.example.checkpoint.core.store.SubscriptionStore
 import com.example.checkpoint.ui.components.OwnScaffold
 import com.example.checkpoint.ui.components.PixelArtText
 
 @Composable
 fun Home(navController: NavController) {
+    val context: Context = LocalContext.current
+    val appwriteService = AppwriteService(context)
+    val authService = AuthService(context)
+    val subscriptionRepository = SubscriptionRepository(appwriteService)
+    val readSubscriptionUseCase: usecaseReadSubscription = serviceReadSubscription(subscriptionRepository)
+
+    LaunchedEffect(Unit) {
+        val userId = authService.getUserIdActual().toString().substringAfter("(").substringBefore(")")
+        val data = readSubscriptionUseCase.fetchByAll(userId)
+        SubscriptionStore.subscriptions = data
+    }
+
     OwnScaffold(navController,
         content = { modifier ->
             Column(
@@ -77,9 +98,9 @@ fun Home(navController: NavController) {
                     text = "SUSCRIPCIONES ACTIVAS",
                     fontSize = 28.sp
                 )
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 PixelArtText(
-                    text = "6",
+                    text = SubscriptionStore.subscriptions.size.toString(),
                     fontSize = 56.sp
                 )
                 Spacer(modifier = Modifier.weight(1f))

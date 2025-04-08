@@ -45,7 +45,7 @@ fun Footer(navController: NavController) {
                     modifier = Modifier.size(40.dp)
                 )
             }
-            IconButton(onClick = { navController.navigate("")
+            IconButton(onClick = { navController.navigate("menu_view")
             }) {
                 Image(
                     painter = painterResource(id = R.drawable.icon_options),

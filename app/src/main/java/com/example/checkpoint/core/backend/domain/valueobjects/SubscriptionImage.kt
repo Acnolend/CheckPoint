@@ -1,9 +1,8 @@
 package com.example.checkpoint.core.backend.domain.valueobjects
-
-import android.net.Uri
+import java.util.regex.Pattern
 
 data class SubscriptionImage(
-    private var _image: Uri
+    private var _image: String
 ) {
     init {
         validateImage(_image)
@@ -13,15 +12,19 @@ data class SubscriptionImage(
         private const val ERROR_WRONG_FORMAT = "The image of the subscription must be a valid content, file, or web URL"
     }
 
-    var image: Uri
+    var image: String
         get() = _image
         set(value) {
             validateImage(value)
             _image = value
         }
 
-    private fun validateImage(image: Uri) {
-        require(image.scheme == "content" || image.scheme == "file" || image.scheme == "http" || image.scheme == "https") {
+    private fun validateImage(image: String) {
+        val urlPattern = Pattern.compile(
+            "^((https?|ftp|file)://)?([A-Za-z0-9.-]+(?:\\.[A-Za-z]{2,})?)(:\\d+)?(/\\S*)?$"
+        )
+        val matcher = urlPattern.matcher(image)
+        require(matcher.matches()) {
             ERROR_WRONG_FORMAT
         }
     }

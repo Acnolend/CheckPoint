@@ -35,9 +35,11 @@ import com.example.checkpoint.ui.components.PixelArtTextField
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.checkpoint.application.services.serviceCreateSubscription
 import com.example.checkpoint.application.services.serviceDataTimeCalculator
+import com.example.checkpoint.application.services.serviceEditSubscription
 import com.example.checkpoint.application.services.serviceReadSubscription
 import com.example.checkpoint.application.usecases.usecaseCreateSubscription
 import com.example.checkpoint.application.usecases.usecaseDateTimeCalculator
+import com.example.checkpoint.application.usecases.usecaseEditSubscription
 import com.example.checkpoint.application.usecases.usecaseReadSubscription
 import com.example.checkpoint.core.backend.api.appwrite.AppwriteService
 import com.example.checkpoint.core.backend.api.appwrite.AuthService
@@ -49,29 +51,29 @@ import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionName
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionReminder
 import com.example.checkpoint.core.store.SubscriptionStore
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CreateSubscription(navController: NavController) {
+fun EditSubscription(navController: NavController) {
+    val subscription = SubscriptionStore.currentSubscription
     val context: Context = LocalContext.current
 
     val appwriteService = AppwriteService(context)
     val authService = AuthService(context)
     val subscriptionRepository = SubscriptionRepository(appwriteService)
-    val createSubscriptionUseCase: usecaseCreateSubscription = serviceCreateSubscription(subscriptionRepository)
+    val editSubscriptionUseCase: usecaseEditSubscription = serviceEditSubscription(subscriptionRepository)
     val readSubscriptionUseCase: usecaseReadSubscription = serviceReadSubscription(subscriptionRepository)
     val coroutineScope = rememberCoroutineScope()
 
 
-    var name by remember { mutableStateOf("") }
-    var cost by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(subscription!!.name.name) }
+    var cost by remember { mutableStateOf(subscription?.cost!!.cost.toString()) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var isMonthly by remember { mutableStateOf(true) }
+    var subscriptionCostType by remember { mutableStateOf(SubscriptionCostType.MONTHLY) }
     var reminderDays by remember { mutableFloatStateOf(1f) }
-    val normalizedReminderValue = remember(reminderDays, isMonthly) {
-        if (isMonthly) {
+    val normalizedReminderValue = remember(reminderDays, subscriptionCostType) {
+        if (subscriptionCostType == SubscriptionCostType.MONTHLY) {
             reminderDays.coerceIn(1f..30f)
         } else {
             (reminderDays / 30f).coerceIn(1f..12f)
@@ -89,13 +91,13 @@ fun CreateSubscription(navController: NavController) {
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
                 PixelArtText(
-                    text = "CREAR SUSCRIPCIÓN",
+                    text = "EDITAR SUSCRIPCIÓN",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFFE64CF0)
                 )
                 Spacer(modifier = Modifier.height(32.dp))
-                ImageSubscription(onImageSelected)
+                ImageSubscription(onImageSelected, subscription!!.image.image)
                 Spacer(modifier = Modifier.height(32.dp))
                 PixelArtTextField("NOMBRE", name, onTextChange = { name = it })
                 Spacer(modifier = Modifier.height(24.dp))
@@ -106,59 +108,59 @@ fun CreateSubscription(navController: NavController) {
                 ) {
                     PixelArtTextField("COSTE", cost, onTextChange = { cost = it }, keyboardType = KeyboardType.Number)
                     PixelArtButton(
-                        text = if (isMonthly) "Mensual" else "Anual",
+                        text = if (subscriptionCostType == SubscriptionCostType.MONTHLY) "Mensual" else "Anual",
                         onClick = {
-                            if (!isMonthly && reminderDays > 0) {
+                            if (subscriptionCostType == SubscriptionCostType.ANNUAL && reminderDays > 0) {
                                 reminderDays = 30f
                             }
-                            isMonthly = !isMonthly
+                            subscriptionCostType = if (subscriptionCostType == SubscriptionCostType.MONTHLY)
+                                SubscriptionCostType.ANNUAL
+                            else
+                                SubscriptionCostType.MONTHLY
                         },
-                        modifier = Modifier.align(Alignment.End)
-                            .padding(top = 16.dp)
+                        modifier = Modifier.align(Alignment.End).padding(top = 16.dp)
                     )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
-                PixelArtText(if (isMonthly) "RECORDAR CADA ${normalizedReminderValue.toInt()} DÍAS" else "RECORDAR CADA ${normalizedReminderValue.toInt()} MESES")
+                PixelArtText(if (subscriptionCostType == SubscriptionCostType.MONTHLY) "RECORDAR CADA ${normalizedReminderValue.toInt()} DÍAS" else "RECORDAR CADA ${normalizedReminderValue.toInt()} MESES")
                 Slider(
                     value = normalizedReminderValue,
                     onValueChange = { newValue ->
-                        reminderDays = if (isMonthly) {
+                        reminderDays = if (subscriptionCostType == SubscriptionCostType.MONTHLY) {
                             newValue.coerceIn(1f..30f)
                         } else {
                             (newValue * 30f).coerceIn(1f..360f)
                         }
                     },
-                    valueRange = if (isMonthly) 1f..30f else 1f..12f,
-                    steps = if (isMonthly) 29 else 11,
+                    valueRange = if (subscriptionCostType == SubscriptionCostType.MONTHLY) 1f..30f else 1f..12f,
+                    steps = if (subscriptionCostType == SubscriptionCostType.MONTHLY) 29 else 11,
                     modifier = Modifier.padding(start= 56.dp, end= 56.dp)
                 )
                 PixelArtButton(
-                    text = "GENERAR",
+                    text = "GUARDAR",
                     onClick = {
                         coroutineScope.launch {
                             val costValue = cost.toDoubleOrNull() ?: return@launch
-                            val type = if (isMonthly) SubscriptionCostType.MONTHLY else SubscriptionCostType.ANNUAL
-
+                            val type = subscriptionCostType
                             val dataTimeCalculator: usecaseDateTimeCalculator = serviceDataTimeCalculator()
-
                             val dateTime = dataTimeCalculator.invoke(type, normalizedReminderValue)
                             val localDateTime = dateTime.atStartOfDay()
-
                             val imageUrl = imageUri?.let { uri ->
                                 appwriteService.uploadImageToAppwrite(context, uri)
                             }
+
                             val userId = authService.getUserIdActual().toString().substringAfter("(").substringBefore(")")
 
                             println(imageUrl)
 
                             imageUrl?.let { SubscriptionImage(it) }?.let {
-                                createSubscriptionUseCase.invoke(
+                                editSubscriptionUseCase.invoke(
+                                    subscription.ID,
                                     it,
                                     SubscriptionName(name),
                                     SubscriptionCost(costValue, type),
                                     SubscriptionReminder(localDateTime),
                                     userId,
-                                    UUID.randomUUID().toString().replace("-", "")
                                 )
                             }
                             val data = readSubscriptionUseCase.fetchByAll(userId)

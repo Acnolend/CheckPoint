@@ -1,12 +1,10 @@
 package com.example.checkpoint.core.backend.domain.valueobjects
 
 import android.os.Build
-import com.example.checkpoint.core.backend.domain.enumerate.SubscriptionReminderType
 import java.time.LocalDateTime
 
 data class SubscriptionReminder(
     private var _dateTime: LocalDateTime,
-    val type: SubscriptionReminderType
 ) {
     init {
         validateDateTime(dateTime)
