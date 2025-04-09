@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +39,8 @@ fun ListSubscription(navController: NavController) {
     val subscriptionRepository = SubscriptionRepository(appwriteService)
     val deleteSubscriptionUseCase: usecaseDeleteSubscription = serviceDeleteSubscription(subscriptionRepository)
 
+    val subscriptions = SubscriptionStore.subscriptions.collectAsState().value
+
     OwnScaffold(navController,
         content = { modifier ->
             Column(
@@ -52,7 +55,7 @@ fun ListSubscription(navController: NavController) {
                     color = Color(0xFFE64CF0),
                     fontWeight = FontWeight.Bold
                 )
-                SubscriptionStore.subscriptions.forEach { subscription ->
+                subscriptions.forEach { subscription ->
                     Spacer(modifier = Modifier.height(24.dp))
                     SubscriptionRead(
                         subscription.name.name,
@@ -67,7 +70,7 @@ fun ListSubscription(navController: NavController) {
                             coroutineScope.launch {
                                 SubscriptionStore.currentSubscription = subscription
                                 deleteSubscriptionUseCase.invoke(subscription.ID)
-                                SubscriptionStore.subscriptions = SubscriptionStore.subscriptions.filterNot { it.ID == subscription.ID }
+                                SubscriptionStore.deleteSubscription(subscription.ID)
                             }
                         }
                     )

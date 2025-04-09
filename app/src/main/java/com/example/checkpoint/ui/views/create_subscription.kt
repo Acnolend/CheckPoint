@@ -35,13 +35,12 @@ import com.example.checkpoint.ui.components.PixelArtTextField
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.checkpoint.application.services.serviceCreateSubscription
 import com.example.checkpoint.application.services.serviceDataTimeCalculator
-import com.example.checkpoint.application.services.serviceReadSubscription
 import com.example.checkpoint.application.usecases.usecaseCreateSubscription
 import com.example.checkpoint.application.usecases.usecaseDateTimeCalculator
-import com.example.checkpoint.application.usecases.usecaseReadSubscription
 import com.example.checkpoint.core.backend.api.appwrite.AppwriteService
 import com.example.checkpoint.core.backend.api.appwrite.AuthService
 import com.example.checkpoint.core.backend.api.appwrite.SubscriptionRepository
+import com.example.checkpoint.core.backend.domain.entities.Subscription
 import com.example.checkpoint.core.backend.domain.enumerate.SubscriptionCostType
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionCost
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionImage
@@ -61,7 +60,6 @@ fun CreateSubscription(navController: NavController) {
     val authService = AuthService(context)
     val subscriptionRepository = SubscriptionRepository(appwriteService)
     val createSubscriptionUseCase: usecaseCreateSubscription = serviceCreateSubscription(subscriptionRepository)
-    val readSubscriptionUseCase: usecaseReadSubscription = serviceReadSubscription(subscriptionRepository)
     val coroutineScope = rememberCoroutineScope()
 
 
@@ -149,20 +147,20 @@ fun CreateSubscription(navController: NavController) {
                             }
                             val userId = authService.getUserIdActual().toString().substringAfter("(").substringBefore(")")
 
-                            println(imageUrl)
-
-                            imageUrl?.let { SubscriptionImage(it) }?.let {
-                                createSubscriptionUseCase.invoke(
-                                    it,
+                            val newSubscription = imageUrl?.let { SubscriptionImage(it) }?.let {
+                                Subscription(
                                     SubscriptionName(name),
+                                    it,
                                     SubscriptionCost(costValue, type),
                                     SubscriptionReminder(localDateTime),
-                                    userId,
                                     UUID.randomUUID().toString().replace("-", "")
                                 )
                             }
-                            val data = readSubscriptionUseCase.fetchByAll(userId)
-                            SubscriptionStore.subscriptions = data
+
+                            if (newSubscription != null) {
+                                createSubscriptionUseCase.invoke(newSubscription, userId)
+                                SubscriptionStore.addOrUpdateSubscription(newSubscription)
+                            }
                             navController.navigate("home")
                         }
                     },

@@ -1,6 +1,7 @@
 package com.example.checkpoint.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -44,8 +45,9 @@ fun Header(navController: NavController) {
                     Image(
                         painter = painterResource(id = R.drawable.icon_user),
                         contentDescription = "Left Image",
-                        modifier = Modifier.fillMaxSize().clip(RectangleShape)
-
+                        modifier = Modifier.fillMaxSize().clip(RectangleShape).clickable {
+                            navController.navigate("edit_user")
+                        }
                     )
                 }
                 Spacer(modifier = Modifier.width(128.dp))

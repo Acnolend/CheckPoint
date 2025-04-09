@@ -19,8 +19,8 @@ import com.example.checkpoint.ui.theme.CheckPointTheme
 import com.example.checkpoint.ui.views.CreateSubscription
 import com.example.checkpoint.ui.views.Home
 import com.example.checkpoint.core.backend.api.appwrite.AuthService
-import com.example.checkpoint.core.backend.domain.entities.Subscription
 import com.example.checkpoint.ui.views.EditSubscription
+import com.example.checkpoint.ui.views.EditUser
 import com.example.checkpoint.ui.views.ListSubscription
 import com.example.checkpoint.ui.views.Login
 import com.example.checkpoint.ui.views.MenuView
@@ -74,6 +74,9 @@ fun NavigationGraph(navController: NavHostController, isAuthenticated: Boolean) 
         }
         composable("list_subscription") {
             ListSubscription(navController)
+        }
+        composable("edit_user") {
+            EditUser(navController)
         }
     }
 }

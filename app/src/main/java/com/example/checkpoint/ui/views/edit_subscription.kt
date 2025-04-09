@@ -33,17 +33,14 @@ import com.example.checkpoint.ui.components.PixelArtButton
 import com.example.checkpoint.ui.components.PixelArtText
 import com.example.checkpoint.ui.components.PixelArtTextField
 import androidx.compose.ui.text.input.KeyboardType
-import com.example.checkpoint.application.services.serviceCreateSubscription
 import com.example.checkpoint.application.services.serviceDataTimeCalculator
 import com.example.checkpoint.application.services.serviceEditSubscription
-import com.example.checkpoint.application.services.serviceReadSubscription
-import com.example.checkpoint.application.usecases.usecaseCreateSubscription
 import com.example.checkpoint.application.usecases.usecaseDateTimeCalculator
 import com.example.checkpoint.application.usecases.usecaseEditSubscription
-import com.example.checkpoint.application.usecases.usecaseReadSubscription
 import com.example.checkpoint.core.backend.api.appwrite.AppwriteService
 import com.example.checkpoint.core.backend.api.appwrite.AuthService
 import com.example.checkpoint.core.backend.api.appwrite.SubscriptionRepository
+import com.example.checkpoint.core.backend.domain.entities.Subscription
 import com.example.checkpoint.core.backend.domain.enumerate.SubscriptionCostType
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionCost
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionImage
@@ -63,7 +60,6 @@ fun EditSubscription(navController: NavController) {
     val authService = AuthService(context)
     val subscriptionRepository = SubscriptionRepository(appwriteService)
     val editSubscriptionUseCase: usecaseEditSubscription = serviceEditSubscription(subscriptionRepository)
-    val readSubscriptionUseCase: usecaseReadSubscription = serviceReadSubscription(subscriptionRepository)
     val coroutineScope = rememberCoroutineScope()
 
 
@@ -145,26 +141,19 @@ fun EditSubscription(navController: NavController) {
                             val dataTimeCalculator: usecaseDateTimeCalculator = serviceDataTimeCalculator()
                             val dateTime = dataTimeCalculator.invoke(type, normalizedReminderValue)
                             val localDateTime = dateTime.atStartOfDay()
-                            val imageUrl = imageUri?.let { uri ->
-                                appwriteService.uploadImageToAppwrite(context, uri)
-                            }
+
+                            val imageUrl = imageUri?.let { appwriteService.uploadImageToAppwrite(context, it) } ?: subscription.image.image
 
                             val userId = authService.getUserIdActual().toString().substringAfter("(").substringBefore(")")
-
-                            println(imageUrl)
-
-                            imageUrl?.let { SubscriptionImage(it) }?.let {
-                                editSubscriptionUseCase.invoke(
-                                    subscription.ID,
-                                    it,
-                                    SubscriptionName(name),
-                                    SubscriptionCost(costValue, type),
-                                    SubscriptionReminder(localDateTime),
-                                    userId,
-                                )
-                            }
-                            val data = readSubscriptionUseCase.fetchByAll(userId)
-                            SubscriptionStore.subscriptions = data
+                            val newSubscription = Subscription(
+                                SubscriptionName(name),
+                                SubscriptionImage(imageUrl),
+                                SubscriptionCost(costValue, type),
+                                SubscriptionReminder(localDateTime),
+                                subscription.ID
+                            )
+                            editSubscriptionUseCase.invoke(newSubscription, userId)
+                            SubscriptionStore.addOrUpdateSubscription(newSubscription)
                             navController.navigate("home")
                         }
                     },

@@ -15,8 +15,7 @@ class serviceCreateSubscription (
 ) : usecaseCreateSubscription {
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override suspend fun invoke(image: SubscriptionImage, name: SubscriptionName, cost: SubscriptionCost, reminder: SubscriptionReminder, userId: String, subscriptionId: String) {
-        val subscription = Subscription(name, image, cost, reminder, subscriptionId)
-        subscriptionRepository.saveSubscription(userId, subscription, subscriptionId)
+    override suspend fun invoke(subscription: Subscription, userId: String) {
+        subscriptionRepository.saveSubscription(userId, subscription, subscription.ID)
     }
 }

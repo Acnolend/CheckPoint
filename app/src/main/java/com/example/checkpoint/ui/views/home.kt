@@ -14,6 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,10 +44,12 @@ fun Home(navController: NavController) {
     val subscriptionRepository = SubscriptionRepository(appwriteService)
     val readSubscriptionUseCase: usecaseReadSubscription = serviceReadSubscription(subscriptionRepository)
 
+    val subscriptions by SubscriptionStore.subscriptions.collectAsState()
+
     LaunchedEffect(Unit) {
         val userId = authService.getUserIdActual().toString().substringAfter("(").substringBefore(")")
         val data = readSubscriptionUseCase.fetchByAll(userId)
-        SubscriptionStore.subscriptions = data
+        SubscriptionStore.setSubscriptions(data)
     }
 
     OwnScaffold(navController,
@@ -100,7 +106,7 @@ fun Home(navController: NavController) {
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 PixelArtText(
-                    text = SubscriptionStore.subscriptions.size.toString(),
+                    text = subscriptions.size.toString(),
                     fontSize = 56.sp
                 )
                 Spacer(modifier = Modifier.weight(1f))

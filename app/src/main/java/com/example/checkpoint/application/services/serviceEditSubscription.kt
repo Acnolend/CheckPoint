@@ -16,8 +16,7 @@ class serviceEditSubscription (
 ) : usecaseEditSubscription {
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override suspend fun invoke(subscriptionId: String, image: SubscriptionImage, name: SubscriptionName, cost: SubscriptionCost, reminder: SubscriptionReminder, userId: String) {
-        val subscription = Subscription(name, image, cost, reminder, subscriptionId)
-        subscriptionRepository.updateSubscription(subscriptionId, userId, subscription)
+    override suspend fun invoke(subscription: Subscription, userId: String) {
+        subscriptionRepository.updateSubscription(subscription.ID, userId, subscription)
     }
 }
