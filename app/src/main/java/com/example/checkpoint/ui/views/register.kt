@@ -10,8 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +31,12 @@ import com.example.checkpoint.ui.components.LinesRegisterLogin
 import com.example.checkpoint.ui.components.PixelArtButton
 import com.example.checkpoint.ui.components.PixelArtText
 import com.example.checkpoint.ui.components.PixelArtTextField
+import com.example.checkpoint.ui.views.data_model.validateUserEmailInput
+import com.example.checkpoint.ui.views.data_model.validateUserNameInput
+import com.example.checkpoint.ui.views.data_model.validateUserPasswordInput
+import androidx.compose.ui.platform.testTag
+import com.google.firebase.BuildConfig
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -43,7 +48,12 @@ fun Register(navController: NavController) {
     var name by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var userNameError by remember { mutableStateOf<String?>(null) }
+    var userPasswordError by remember { mutableStateOf<String?>(null) }
+    var userEmailError by remember { mutableStateOf<String?>(null) }
     val coroutineScope = rememberCoroutineScope()
+
+
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -58,7 +68,8 @@ fun Register(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
         Box(
             modifier = Modifier
-                .size(350.dp)
+                .width(350.dp)
+                .height(390.dp)
                 .background(Color(0xFF4895EF))
         ) {
             Column(
@@ -66,14 +77,47 @@ fun Register(navController: NavController) {
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.align(Alignment.Center)
             ) {
-                PixelArtTextField("NOMBRE DE USUARIO", name, onTextChange = { name = it }, keyboardType = KeyboardType.Text)
                 Spacer(modifier = Modifier.height(4.dp))
-                PixelArtTextField("CONTRASEÑA", password, onTextChange = { password = it }, keyboardType = KeyboardType.Password)
+                PixelArtTextField(
+                    "NOMBRE DE USUARIO",
+                    name,
+                    onTextChange = {
+                        name = it
+                        userNameError = validateUserNameInput(it)
+                    },
+                    isError = userNameError != null,
+                    errorMessage = userNameError,
+                    modifier = Modifier.testTag("usernameField")
+                )
                 Spacer(modifier = Modifier.height(4.dp))
-                PixelArtTextField("CORREO", email, onTextChange = { email = it }, keyboardType = KeyboardType.Email)
-                Spacer(modifier = Modifier.height(16.dp))
-                PixelArtText("LOGIN", modifier = Modifier.clickable { navController.navigate("login") })
-                Spacer(modifier = Modifier.height(16.dp))
+                PixelArtTextField(
+                    "CONTRASEÑA",
+                    password,
+                    onTextChange =
+                    { password = it
+                        userPasswordError = validateUserPasswordInput(it)
+                    },
+                    isError = userPasswordError != null,
+                    errorMessage = userPasswordError,
+                    isPassword = true,
+                    modifier = Modifier.testTag("passwordField")
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                PixelArtTextField(
+                    "CORREO",
+                    email,
+                    onTextChange = {
+                        email = it
+                        userEmailError = validateUserEmailInput(it)
+                    },
+                    isError = userEmailError != null,
+                    errorMessage = userEmailError,
+                    keyboardType = KeyboardType.Email,
+                    modifier = Modifier.testTag("emailField")
+                )
+
+                PixelArtText("LOGIN", modifier = Modifier.testTag("toLoginButton").clickable { navController.navigate("login") })
+                Spacer(modifier = Modifier.height(12.dp))
                 PixelArtButton(
                     text = "REGISTRARSE",
                     onClick = {
@@ -87,7 +131,10 @@ fun Register(navController: NavController) {
                             }
                         }
                     },
-                    fontSize = 24.sp
+                    fontSize = 24.sp,
+                    errorMessages = listOf(userEmailError.orEmpty(), userPasswordError.orEmpty(), userNameError.orEmpty()),
+                    requiredFields = listOf(email, password, name),
+                    modifier = Modifier.testTag("registerButton")
                 )
             }
         }

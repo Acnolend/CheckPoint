@@ -17,12 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun ImageSubscription(
     onImageSelected: (Uri) -> Unit,
-    existingImageUrl: String? = null
+    existingImageUrl: String? = null,
 ) {
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val launcher = rememberLauncherForActivityResult(
@@ -39,7 +40,8 @@ fun ImageSubscription(
             .size(150.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
-            .clickable { launcher.launch("image/*") },
+            .clickable { launcher.launch("image/*") }
+            .testTag("imageSubscription"),
         contentAlignment = Alignment.Center
     ) {
         when {

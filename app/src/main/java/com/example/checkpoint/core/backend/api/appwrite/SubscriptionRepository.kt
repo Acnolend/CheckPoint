@@ -8,6 +8,7 @@ import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionCost
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionImage
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionName
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionReminder
+import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionRenewalDate
 import io.appwrite.Query
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -27,6 +28,7 @@ class SubscriptionRepository(private val appwriteService: AppwriteService) {
             "cost" to subscription.cost.cost,
             "typecost" to subscription.cost.type.toString(),
             "reminder" to subscription.reminder.dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+            "renewalDate" to subscription.renewalDate.dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
             "userId" to userId
         )
         appwriteService.save(collectionId, documentId, dataMap)
@@ -40,13 +42,15 @@ class SubscriptionRepository(private val appwriteService: AppwriteService) {
             "cost" to subscription.cost.cost,
             "typecost" to subscription.cost.type.toString(),
             "reminder" to subscription.reminder.dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+            "renewalDate" to subscription.renewalDate.dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
             "userId" to userId
         )
         appwriteService.edit(databaseId, collectionId, subscriptionId, dataMap)
     }
 
-    suspend fun deleteSubscription(subscriptionId: String) {
-        appwriteService.delete(databaseId, collectionId, subscriptionId)
+    suspend fun deleteSubscription(subscription: Subscription) {
+        appwriteService.deleteStorage(subscription.image.image)
+        appwriteService.delete(databaseId, collectionId, subscription.ID)
     }
 
     suspend fun getSubscription(subscriptionId: String): Subscription? {
@@ -68,6 +72,7 @@ class SubscriptionRepository(private val appwriteService: AppwriteService) {
             }
             val typecost = data["typecost"] as? String ?: ""
             val reminder = data["reminder"] as? String ?: ""
+            val renewalDate = data["renewalDate"] as? String ?: ""
             val id = data["\$id"] as? String ?: ""
 
             Subscription(
@@ -75,8 +80,29 @@ class SubscriptionRepository(private val appwriteService: AppwriteService) {
                 image = SubscriptionImage(image),
                 cost = SubscriptionCost(cost, SubscriptionCostType.valueOf(typecost)),
                 reminder = SubscriptionReminder(LocalDateTime.parse(reminder, DateTimeFormatter.ISO_DATE_TIME)),
+                renewalDate = SubscriptionRenewalDate(LocalDateTime.parse(renewalDate, DateTimeFormatter.ISO_DATE_TIME)),
                 id
             )
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun updateSubscriptionRenewalDate(subscriptionId: String, newRenewalDate: LocalDateTime) {
+        val formattedRenewalDate = newRenewalDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        val dataMap = mapOf(
+            "renewalDate" to formattedRenewalDate
+        )
+        println("Repo: Actualizando renovacion con ID: " + subscriptionId + " a " + formattedRenewalDate)
+        appwriteService.edit(databaseId, collectionId, subscriptionId, dataMap)
+        println("Repo: Renovación actualizada")
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun updateSubscriptionReminderDate(subscriptionId: String, newReminderDate: LocalDateTime) {
+        val formattedReminderDate = newReminderDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        val dataMap = mapOf(
+            "reminder" to formattedReminderDate
+        )
+        appwriteService.edit(databaseId, collectionId, subscriptionId, dataMap)
     }
 }

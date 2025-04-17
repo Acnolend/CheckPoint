@@ -69,7 +69,7 @@ fun ListSubscription(navController: NavController) {
                         onDeleteClick = {
                             coroutineScope.launch {
                                 SubscriptionStore.currentSubscription = subscription
-                                deleteSubscriptionUseCase.invoke(subscription.ID)
+                                deleteSubscriptionUseCase.invoke(subscription)
                                 SubscriptionStore.deleteSubscription(subscription.ID)
                             }
                         }

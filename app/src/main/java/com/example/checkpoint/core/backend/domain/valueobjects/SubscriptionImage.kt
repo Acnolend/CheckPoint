@@ -21,7 +21,7 @@ data class SubscriptionImage(
 
     private fun validateImage(image: String) {
         val urlPattern = Pattern.compile(
-            "^((https?|ftp|file)://)?([A-Za-z0-9.-]+(?:\\.[A-Za-z]{2,})?)(:\\d+)?(/\\S*)?$"
+            "^(https?|ftp)://[A-Za-z0-9.-]+(?:\\.[A-Za-z]{2,})?(:\\d+)?(/\\S*)?$"
         )
         val matcher = urlPattern.matcher(image)
         require(matcher.matches()) {

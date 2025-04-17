@@ -5,7 +5,6 @@ import io.appwrite.Query
 import io.appwrite.exceptions.AppwriteException
 import io.appwrite.services.Account
 import io.appwrite.services.Databases
-import io.appwrite.services.Functions
 import io.appwrite.services.Storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,7 +18,6 @@ class AuthService(context: Context) {
     private val account = Account(client)
     private val database = Databases(client)
     private val storage = Storage(client)
-    private val functions = Functions(client)
 
     suspend fun isUserLoggedIn(): Boolean {
         return try {
@@ -96,18 +94,38 @@ class AuthService(context: Context) {
 
     suspend fun editUser(newUserName: String, newEmail: String?, newPassword: String?, currentPassword: String): Result<Boolean> {
         return try {
-            if (newUserName.isNotEmpty()) {
+            val currentUserNameResult = getUserName()
+            val currentUserEmailResult = getUserEmail()
+
+            if (currentUserNameResult.isFailure || currentUserEmailResult.isFailure) {
+                return Result.failure(Exception("Error retrieving current user data"))
+            }
+
+            val currentUserName = currentUserNameResult.getOrNull() ?: ""
+            val currentUserEmail = currentUserEmailResult.getOrNull() ?: ""
+
+            val userId = getUserIdActual().toString().substringAfter("(").substringBefore(")")
+            println("Updating user with documentId: $userId")
+
+            if (newUserName.isNotEmpty() && newUserName != currentUserName) {
                 val database = Databases(client)
+                database.getDocument(
+                    databaseId = "67f16b4800153970e87a",
+                    collectionId = "67f19662003ce0c8e7d5",
+                    documentId = userId
+                )
                 database.updateDocument(
                     databaseId = "67f16b4800153970e87a",
                     collectionId = "67f19662003ce0c8e7d5",
-                    documentId = getUserIdActual().toString().substringAfter("(").substringBefore(")"),
+                    documentId = userId,
                     data = mapOf("userName" to newUserName)
                 )
                 account.updateName(newUserName)
             }
             newEmail?.let {
-                account.updateEmail(it, currentPassword)
+                if (it != currentUserEmail) {
+                    account.updateEmail(it, currentPassword)
+                }
             }
             newPassword?.let {
                 account.updatePassword(it, currentPassword)
@@ -121,53 +139,28 @@ class AuthService(context: Context) {
 
     suspend fun deleteUserAndSubscriptions(userId: String): Result<Boolean> {
         return try {
-            println("🔍 Iniciando eliminación de usuario con ID: $userId")
-
             val query = listOf(Query.equal("userId", userId))
             val queryStrings = query.map { it }
-
-            println("📄 Buscando documentos de suscripciones del usuario...")
             val documents = database.listDocuments(
                 databaseId = "67f16b4800153970e87a",
                 collectionId = "67f1730c001c5348bb6a",
                 queries = queryStrings
             )
-            println("📄 ${documents.documents.size} suscripciones encontradas")
             for (document in documents.documents) {
                 println("🗑️ Procesando suscripción con ID: ${document.id}")
                 val imageUrl = document.data["image"] as String?
                 val fileId = extractFileIdFromUrl(imageUrl)
                 println(fileId)
                 if (fileId != null) {
-                    println("🖼️ Eliminando imagen con fileId: $fileId")
                     storage.deleteFile("67f4196f003826072308", fileId)
                 } else {
-                    println("⚠️ No se pudo extraer el fileId de la URL: $imageUrl")
                 }
-
-                println("🗑️ Eliminando documento de suscripción: ${document.id}")
                 database.deleteDocument(
                     databaseId = "67f16b4800153970e87a",
                     collectionId = "67f1730c001c5348bb6a",
                     documentId = document.id
                 )
             }
-            println("🗑️ Eliminando documento de usuario del sistema con ID: $userId")
-            database.deleteDocument(
-                databaseId = "67f16b4800153970e87a",
-                collectionId = "67f19662003ce0c8e7d5",
-                documentId = userId
-            )
-            println("🚪 Cerrando sesión actual")
-            val execution = withContext(Dispatchers.IO) {
-                functions.createExecution(
-                    functionId = "67f6eb3a0001d37e3e9a",
-                    body = "{\"userId\": \"$userId\"}",
-                    async = true
-                )
-            }
-            account.deleteSession("current")
-            println("✅ Usuario y suscripciones eliminados correctamente")
             Result.success(true)
         } catch (e: AppwriteException) {
             println("❌ Error al eliminar usuario o suscripciones: ${e.message}")

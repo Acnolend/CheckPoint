@@ -46,7 +46,12 @@ import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionCost
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionImage
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionName
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionReminder
+import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionRenewalDate
 import com.example.checkpoint.core.store.SubscriptionStore
+import com.example.checkpoint.ui.components.DatePickerField
+import com.example.checkpoint.ui.views.data_model.validateSubscriptionCostInput
+import com.example.checkpoint.ui.views.data_model.validateSubscriptionNameInput
+import com.example.checkpoint.ui.views.data_model.validateSubscriptionReminderInput
 import kotlinx.coroutines.launch
 
 
@@ -68,6 +73,13 @@ fun EditSubscription(navController: NavController) {
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var subscriptionCostType by remember { mutableStateOf(SubscriptionCostType.MONTHLY) }
     var reminderDays by remember { mutableFloatStateOf(1f) }
+    var renewalDate by remember { mutableStateOf(subscription!!.renewalDate.dateTime) }
+
+    var subscriptionNameError by remember { mutableStateOf<String?>(null) }
+    var subscriptionCostError by remember { mutableStateOf<String?>(null) }
+    var subscriptionRenewalDateError by remember { mutableStateOf<String?>(null) }
+    var subscriptionReminderDateError by remember { mutableStateOf<String?>(null) }
+
     val normalizedReminderValue = remember(reminderDays, subscriptionCostType) {
         if (subscriptionCostType == SubscriptionCostType.MONTHLY) {
             reminderDays.coerceIn(1f..30f)
@@ -95,14 +107,35 @@ fun EditSubscription(navController: NavController) {
                 Spacer(modifier = Modifier.height(32.dp))
                 ImageSubscription(onImageSelected, subscription!!.image.image)
                 Spacer(modifier = Modifier.height(32.dp))
-                PixelArtTextField("NOMBRE", name, onTextChange = { name = it })
+                PixelArtTextField(
+                    "NOMBRE",
+                    name,
+                    onTextChange = {
+                        name = it
+                        subscriptionNameError = validateSubscriptionNameInput(it)
+                    },
+                    isError = subscriptionNameError != null,
+                    errorMessage = subscriptionNameError
+                )
                 Spacer(modifier = Modifier.height(24.dp))
                 Column(
                     modifier = Modifier
                         .padding(start = 56.dp, end = 56.dp)
                         .fillMaxWidth(),
                 ) {
-                    PixelArtTextField("COSTE", cost, onTextChange = { cost = it }, keyboardType = KeyboardType.Number)
+                    PixelArtTextField(
+                        "COSTE",
+                        cost,
+                        onTextChange = {
+                            cost = it
+                            val newCost = cost.toDoubleOrNull()
+                            subscriptionCostError =
+                                newCost?.let { it1 -> validateSubscriptionCostInput(it1, if (subscriptionCostType == SubscriptionCostType.MONTHLY) "MONTHLY" else "ANNUAL") }
+                        },
+                        isError = subscriptionCostError != null,
+                        errorMessage = subscriptionCostError,
+                        keyboardType = KeyboardType.Number
+                    )
                     PixelArtButton(
                         text = if (subscriptionCostType == SubscriptionCostType.MONTHLY) "Mensual" else "Anual",
                         onClick = {
@@ -118,19 +151,32 @@ fun EditSubscription(navController: NavController) {
                     )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
+                DatePickerField { date ->
+                    renewalDate = date
+                }
+                Spacer(modifier = Modifier.height(24.dp))
                 PixelArtText(if (subscriptionCostType == SubscriptionCostType.MONTHLY) "RECORDAR CADA ${normalizedReminderValue.toInt()} DÍAS" else "RECORDAR CADA ${normalizedReminderValue.toInt()} MESES")
                 Slider(
                     value = normalizedReminderValue,
                     onValueChange = { newValue ->
-                        reminderDays = if (subscriptionCostType == SubscriptionCostType.MONTHLY) {
+                        val proposedReminderDays = if (subscriptionCostType == SubscriptionCostType.MONTHLY) {
                             newValue.coerceIn(1f..30f)
                         } else {
                             (newValue * 30f).coerceIn(1f..360f)
                         }
+                        if (renewalDate != null) {
+                            val reminderDateCandidate = renewalDate!!.toLocalDate()
+                                .minusDays(proposedReminderDays.toLong())
+                                .atStartOfDay()
+
+                            subscriptionReminderDateError = validateSubscriptionReminderInput(reminderDateCandidate)
+                        }
+
+                        reminderDays = proposedReminderDays
                     },
                     valueRange = if (subscriptionCostType == SubscriptionCostType.MONTHLY) 1f..30f else 1f..12f,
                     steps = if (subscriptionCostType == SubscriptionCostType.MONTHLY) 29 else 11,
-                    modifier = Modifier.padding(start= 56.dp, end= 56.dp)
+                    modifier = Modifier.padding(start = 56.dp, end = 56.dp)
                 )
                 PixelArtButton(
                     text = "GUARDAR",
@@ -150,6 +196,7 @@ fun EditSubscription(navController: NavController) {
                                 SubscriptionImage(imageUrl),
                                 SubscriptionCost(costValue, type),
                                 SubscriptionReminder(localDateTime),
+                                SubscriptionRenewalDate(renewalDate),
                                 subscription.ID
                             )
                             editSubscriptionUseCase.invoke(newSubscription, userId)
@@ -157,10 +204,11 @@ fun EditSubscription(navController: NavController) {
                             navController.navigate("home")
                         }
                     },
-                    fontSize = 24.sp
+                    fontSize = 24.sp,
+                    errorMessages = listOf(subscriptionNameError.orEmpty(), subscriptionCostError.orEmpty(), subscriptionRenewalDateError.orEmpty(), subscriptionReminderDateError.orEmpty()),
+                    requiredFields = listOf(imageUri.toString(), name, cost, reminderDays.toString(), renewalDate?.toString() ?: "")
                 )
                 Spacer(modifier = Modifier.height(32.dp))
-                Spacer(modifier = Modifier.weight(1f))
             }
         }
     )

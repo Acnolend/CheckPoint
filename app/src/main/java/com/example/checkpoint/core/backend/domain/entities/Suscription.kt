@@ -4,11 +4,13 @@ import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionRemin
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionCost
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionImage
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionName
+import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionRenewalDate
 
 data class Subscription(
     val name: SubscriptionName,
     val image: SubscriptionImage,
     val cost: SubscriptionCost,
     val reminder: SubscriptionReminder,
+    val renewalDate: SubscriptionRenewalDate,
     val ID: String
 )

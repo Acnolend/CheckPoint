@@ -31,6 +31,8 @@ import com.example.checkpoint.ui.components.LinesRegisterLogin
 import com.example.checkpoint.ui.components.PixelArtButton
 import com.example.checkpoint.ui.components.PixelArtText
 import com.example.checkpoint.ui.components.PixelArtTextField
+import com.example.checkpoint.ui.views.data_model.validateUserEmailInput
+import com.example.checkpoint.ui.views.data_model.validateUserPasswordInput
 import kotlinx.coroutines.launch
 
 @Composable
@@ -40,6 +42,8 @@ fun Login(navController: NavController) {
 
     var password by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var userPasswordError by remember { mutableStateOf<String?>(null) }
+    var userEmailError by remember { mutableStateOf<String?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
     Column(
@@ -63,9 +67,29 @@ fun Login(navController: NavController) {
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.align(Alignment.Center)
             ) {
-                PixelArtTextField("CORREO", email, onTextChange = { email = it }, keyboardType = KeyboardType.Email)
+                PixelArtTextField(
+                    "CORREO",
+                    email,
+                    onTextChange = {
+                        email = it
+                        userEmailError = validateUserEmailInput(it)
+                    },
+                    isError = userEmailError != null,
+                    errorMessage = userEmailError,
+                    keyboardType = KeyboardType.Email
+                )
                 Spacer(modifier = Modifier.height(4.dp))
-                PixelArtTextField("CONTRASEÑA", password, onTextChange = { password = it }, keyboardType = KeyboardType.Password)
+                PixelArtTextField(
+                    "CONTRASEÑA",
+                    password,
+                    onTextChange =
+                    { password = it
+                        userPasswordError = validateUserPasswordInput(it)
+                    },
+                    isError = userPasswordError != null,
+                    errorMessage = userPasswordError,
+                    isPassword = true
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 PixelArtText("REGISTRARSE", modifier = Modifier.clickable { navController.navigate("register") })
                 Spacer(modifier = Modifier.height(16.dp))
@@ -82,7 +106,9 @@ fun Login(navController: NavController) {
                             }
                         }
                     },
-                    fontSize = 24.sp
+                    fontSize = 24.sp,
+                    errorMessages = listOf(userEmailError.orEmpty(), userPasswordError.orEmpty()),
+                    requiredFields = listOf(email, password)
                 )
             }
         }

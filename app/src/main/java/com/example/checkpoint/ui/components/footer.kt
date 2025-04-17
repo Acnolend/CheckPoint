@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -34,7 +35,7 @@ fun Footer(navController: NavController) {
                 Image(
                     painter = painterResource(id = R.drawable.icon_house),
                     contentDescription = "Left Image",
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(32.dp).testTag("homeButton")
                 )
             }
             IconButton(onClick = { navController.navigate("create_subscription")
@@ -42,7 +43,7 @@ fun Footer(navController: NavController) {
                 Image(
                     painter = painterResource(id = R.drawable.icon_add),
                     contentDescription = "Center Image",
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(40.dp).testTag("createSubscriptionButton")
                 )
             }
             IconButton(onClick = { navController.navigate("menu_view")
@@ -50,7 +51,7 @@ fun Footer(navController: NavController) {
                 Image(
                     painter = painterResource(id = R.drawable.icon_options),
                     contentDescription = "Right Image",
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(32.dp).testTag("menuViewButton")
                 )
             }
         }

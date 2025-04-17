@@ -25,6 +25,7 @@ import com.example.checkpoint.ui.views.ListSubscription
 import com.example.checkpoint.ui.views.Login
 import com.example.checkpoint.ui.views.MenuView
 import com.example.checkpoint.ui.views.Register
+import com.example.checkpoint.ui.views.Settings
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -77,6 +78,9 @@ fun NavigationGraph(navController: NavHostController, isAuthenticated: Boolean) 
         }
         composable("edit_user") {
             EditUser(navController)
+        }
+        composable("settings") {
+            Settings(navController)
         }
     }
 }

@@ -22,6 +22,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -30,6 +32,10 @@ import com.example.checkpoint.ui.components.PixelArtButton
 import com.example.checkpoint.ui.components.PixelArtTextField
 import com.example.checkpoint.R
 import com.example.checkpoint.core.backend.api.appwrite.AuthService
+import com.example.checkpoint.ui.components.PixelArtText
+import com.example.checkpoint.ui.views.data_model.validateUserEmailInput
+import com.example.checkpoint.ui.views.data_model.validateUserNameInput
+import com.example.checkpoint.ui.views.data_model.validateUserPasswordInput
 import kotlinx.coroutines.launch
 
 
@@ -44,6 +50,11 @@ fun EditUser(navController: NavController) {
     var currentEmail by remember { mutableStateOf("") }
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
+
+    var userNameError by remember { mutableStateOf<String?>(null) }
+    var userCurrentPasswordError by remember { mutableStateOf<String?>(null) }
+    var userNewPasswordError by remember { mutableStateOf<String?>(null) }
+    var userEmailError by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         val resultName = authService.getUserName()
@@ -76,13 +87,55 @@ fun EditUser(navController: NavController) {
                     modifier = Modifier.fillMaxSize().clip(RectangleShape)
                 )
                 Spacer(modifier = Modifier.height(32.dp))
-                PixelArtTextField("NOMBRE", name, onTextChange = { name = it })
+
+                PixelArtTextField(
+                    "NOMBRE",
+                    name,
+                    onTextChange = {
+                        name = it
+                        userNameError = validateUserNameInput(it)
+                                   },
+                    isError = userNameError != null,
+                    errorMessage = userNameError
+                )
                 Spacer(modifier = Modifier.height(24.dp))
-                PixelArtTextField("CONTRASEÑA ACTUAL", currentPassword, onTextChange = { currentPassword= it })
+                PixelArtText("PARA CAMBIAR CORREO Y CONTRASEÑA DEBES PONER LA CONTRASEÑA ACTUAL", modifier = Modifier.fillMaxSize(), textAlign = TextAlign.Center)
                 Spacer(modifier = Modifier.height(24.dp))
-                PixelArtTextField("CONTRASEÑA NUEVA", newPassword, onTextChange = { newPassword = it })
+                PixelArtTextField(
+                    "CONTRASEÑA ACTUAL",
+                    currentPassword,
+                    onTextChange =
+                    { currentPassword= it
+                        userCurrentPasswordError = validateUserPasswordInput(it)
+                    },
+                    isError = userCurrentPasswordError != null,
+                    errorMessage = userCurrentPasswordError,
+                    isPassword = true
+                )
                 Spacer(modifier = Modifier.height(24.dp))
-                PixelArtTextField("CORREO", currentEmail, onTextChange = { currentEmail = it })
+                PixelArtTextField(
+                    "CONTRASEÑA NUEVA",
+                    newPassword,
+                    onTextChange =
+                    { newPassword= it
+                        userNewPasswordError = validateUserPasswordInput(it)
+                    },
+                    isError = userNewPasswordError != null,
+                    errorMessage = userNewPasswordError,
+                    isPassword = true
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                PixelArtTextField(
+                    "CORREO",
+                    currentEmail,
+                    onTextChange = {
+                        currentEmail = it
+                        userEmailError = validateUserEmailInput(it)
+                    },
+                    isError = userEmailError != null,
+                    errorMessage = userEmailError,
+                    keyboardType = KeyboardType.Email
+                )
                 Spacer(modifier = Modifier.height(32.dp))
                 PixelArtButton(
                     text = "GUARDAR",
@@ -92,7 +145,7 @@ fun EditUser(navController: NavController) {
                             navController.navigate("home")
                         }
                     },
-                    fontSize = 24.sp
+                    fontSize = 24.sp,
                 )
                 Spacer(modifier = Modifier.height(32.dp))
                 PixelArtButton(
@@ -100,10 +153,9 @@ fun EditUser(navController: NavController) {
                     onClick = {
                         coroutineScope.launch {
                             authService.deleteUserAndSubscriptions(authService.getUserIdActual().toString().substringAfter("(").substringBefore(")"))
-                            navController.navigate("register")
                         }
                     },
-                    fontSize = 24.sp
+                    fontSize = 24.sp,
                 )
                 Spacer(modifier = Modifier.height(32.dp))
                 Spacer(modifier = Modifier.weight(1f))

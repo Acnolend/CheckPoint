@@ -1,7 +1,8 @@
 package com.example.checkpoint.core.backend.api.appwrite
 
-import android.content.ContentResolver
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import io.appwrite.Client
 import io.appwrite.services.Databases
@@ -11,7 +12,7 @@ import io.appwrite.extensions.gson
 import io.appwrite.models.Document
 import io.appwrite.models.InputFile
 import io.appwrite.services.Storage
-import java.io.InputStream
+import java.io.ByteArrayOutputStream
 import java.util.UUID
 
 
@@ -55,6 +56,10 @@ class AppwriteService(context: Context) {
         )
     }
 
+    suspend fun deleteStorage(file: String) {
+        storage.deleteFile("67f4196f003826072308", file.substringAfter("/files/").substringBefore("/"))
+    }
+
     suspend fun <T> get(databaseId: String, collectionId: String, documentId: String, clazz: Class<T>): T? {
         val document: Document<Map<String, Any>> = database.getDocument(
             databaseId = databaseId,
@@ -81,38 +86,39 @@ class AppwriteService(context: Context) {
         return gson.fromJson(json, type)
     }
 
-    suspend fun uploadImageToAppwrite(context: Context, imageUri: Uri): String? {
-        try {
+    suspend fun uploadImageToAppwrite(context: Context, imageUri: Uri): String {
+        return try {
             val fileId = UUID.randomUUID().toString().replace("-", "")
-            println("Generated fileId: $fileId")
-            val contentResolver: ContentResolver = context.contentResolver
-            val inputStream: InputStream = contentResolver.openInputStream(imageUri) ?: throw Exception("InputStream is null")
-            println("InputStream obtained successfully")
+            val contentResolver = context.contentResolver
+            val originalInputStream = contentResolver.openInputStream(imageUri)
+                ?: throw Exception("InputStream is null")
+            val bitmap = BitmapFactory.decodeStream(originalInputStream)
+            originalInputStream.close()
 
-            val tempFile = java.io.File(context.cacheDir, "temp_image.png")
-            println("Temp file path: ${tempFile.absolutePath}")
-            tempFile.outputStream().use { outputStream ->
-                inputStream.copyTo(outputStream)
-                println("Image copied to temp file")
-            }
+            val outputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
 
-            val inputFile = InputFile.fromPath(tempFile.absolutePath)
-            println("Created InputFile from temp file")
+            val byteArray = outputStream.toByteArray()
+            outputStream.close()
 
-            storage.createFile(
+            val mimeType = "image/jpeg"
+            val fileName = "image_${System.currentTimeMillis()}.jpeg"
+            val inputFile = InputFile.fromBytes(byteArray, fileName, mimeType)
+
+            val response = storage.createFile(
                 bucketId = "67f4196f003826072308",
                 fileId = fileId,
                 file = inputFile
             )
-            println("File uploaded to Appwrite")
-
-            val fileUrl = "https://cloud.appwrite.io/v1/storage/buckets/67f4196f003826072308/files/$fileId/view?project=67f11f87002b613f4e14"
-            println("File URL: $fileUrl")
-            return fileUrl
+            val fileUrl = "https://cloud.appwrite.io/v1/storage/buckets/67f4196f003826072308/files/${response.id}/view?project=67f11f87002b613f4e14"
+            fileUrl
 
         } catch (e: Exception) {
+            println("Error uploading file: ${e.message}")
             e.printStackTrace()
+            "Error al subir el archivo: ${e.message}"
         }
-        return TODO("Provide the return value")
     }
+
+
 }

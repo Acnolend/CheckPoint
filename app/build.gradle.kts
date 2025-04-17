@@ -76,4 +76,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("io.appwrite:sdk-for-android:6.1.0")
+    implementation("androidx.work:work-runtime-ktx:2.7.0")
+    androidTestImplementation(libs.androidx.junit.v115)
+    androidTestImplementation(libs.androidx.espresso.core.v351)
+
+
 }

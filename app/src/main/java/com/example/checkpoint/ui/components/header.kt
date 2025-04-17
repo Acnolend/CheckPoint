@@ -52,7 +52,7 @@ fun Header(navController: NavController) {
                 }
                 Spacer(modifier = Modifier.width(128.dp))
                 IconButton(
-                    onClick = { navController.navigate("") },
+                    onClick = { navController.navigate("home") },
                     modifier = Modifier
                         .clip(RectangleShape)
                         .size(40.dp)
@@ -66,7 +66,7 @@ fun Header(navController: NavController) {
                 }
                 Spacer(modifier = Modifier.width(128.dp))
                 IconButton(
-                    onClick = { navController.navigate("") },
+                    onClick = { navController.navigate("settings") },
                     modifier = Modifier
                         .clip(RectangleShape)
                         .size(40.dp)

@@ -21,20 +21,34 @@ fun PixelArtButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     fontSize: TextUnit = 16.sp,
-    color: Color = Color(0xFFE64CF0)
+    color: Color = Color(0xFFE64CF0),
+    errorMessages: List<String>? = null,
+    requiredFields: List<String>? = null,
 ) {
+    val areFieldsFilled = requiredFields?.all { it.isNotEmpty() } ?: true
+    val noErrors = errorMessages?.all { it.isEmpty() } ?: true
+
+    val isButtonEnabled = areFieldsFilled && noErrors
+
+    val buttonColor = if (isButtonEnabled) color else Color.Gray
+    val textColor = if (isButtonEnabled) Color.White else Color.DarkGray
+
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(color)
-            .clickable { onClick() }
+            .background(buttonColor)
+            .clickable(enabled = isButtonEnabled) {
+                if (isButtonEnabled) onClick()
+            }
             .padding(vertical = 12.dp, horizontal = 24.dp)
     ) {
         PixelArtText(
             text = text,
             fontWeight = FontWeight.Bold,
             fontSize = fontSize,
+            color = textColor
         )
     }
 }

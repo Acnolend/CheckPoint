@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.example.checkpoint.R
@@ -17,7 +18,8 @@ fun PixelArtText(
     color: Color = Color.White,
     fontSize: TextUnit = 16.sp,
     fontWeight: FontWeight = FontWeight.Normal,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    textAlign: TextAlign = TextAlign.Start
 ) {
     Text(
         text = text,
@@ -25,6 +27,7 @@ fun PixelArtText(
         fontSize = fontSize,
         fontWeight = fontWeight,
         fontFamily = FontFamily(Font(R.font.pixel_art_font)),
+        textAlign = textAlign,
         modifier = modifier
     )
 }
