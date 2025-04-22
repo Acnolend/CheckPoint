@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -185,7 +186,7 @@ fun CreateSubscription(navController: NavController) {
                     },
                     valueRange = if (isMonthly) 1f..30f else 1f..12f,
                     steps = if (isMonthly) 29 else 11,
-                    modifier = Modifier.padding(start = 56.dp, end = 56.dp)
+                    modifier = Modifier.padding(start = 56.dp, end = 56.dp).testTag("sliderTag")
                 )
 
                 PixelArtButton(

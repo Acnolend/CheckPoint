@@ -15,14 +15,20 @@
       </SelectionState>
       <SelectionState runConfigName="MainActivityTest">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-04-16T21:47:51.950887200Z">
+        <DropdownSelection timestamp="2025-04-17T20:52:28.322962900Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="Default" identifier="serial=emulator-5554;connection=8ba56c2d" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\tonio1\.android\avd\Pixel_8_Pro_API_33_1.avd" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="SubscriptionCostTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="SubscriptionImageTest">
+        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
   </component>

@@ -21,6 +21,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+
     }
 
     buildTypes {
@@ -45,6 +47,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.3"
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -68,6 +71,7 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("androidx.navigation:navigation-compose:2.8.9")
     implementation(libs.androidx.room.common)
+    implementation(libs.androidx.media3.common.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -77,8 +81,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("io.appwrite:sdk-for-android:6.1.0")
     implementation("androidx.work:work-runtime-ktx:2.7.0")
-    androidTestImplementation(libs.androidx.junit.v115)
-    androidTestImplementation(libs.androidx.espresso.core.v351)
-
-
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:5.11.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
 }
