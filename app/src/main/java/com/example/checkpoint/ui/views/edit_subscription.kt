@@ -33,6 +33,7 @@ import com.example.checkpoint.ui.components.PixelArtButton
 import com.example.checkpoint.ui.components.PixelArtText
 import com.example.checkpoint.ui.components.PixelArtTextField
 import androidx.compose.ui.text.input.KeyboardType
+import com.example.checkpoint.R
 import com.example.checkpoint.application.services.serviceDataTimeCalculator
 import com.example.checkpoint.application.services.serviceEditSubscription
 import com.example.checkpoint.application.usecases.usecaseDateTimeCalculator
@@ -99,7 +100,7 @@ fun EditSubscription(navController: NavController) {
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
                 PixelArtText(
-                    text = "EDITAR SUSCRIPCIÓN",
+                    text = context.getString(R.string.edit_subscription),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFFE64CF0)
@@ -108,14 +109,14 @@ fun EditSubscription(navController: NavController) {
                 ImageSubscription(onImageSelected, subscription!!.image.image)
                 Spacer(modifier = Modifier.height(32.dp))
                 PixelArtTextField(
-                    "NOMBRE",
+                    context.getString(R.string.subscription_name),
                     name,
                     onTextChange = {
                         name = it
                         subscriptionNameError = validateSubscriptionNameInput(it)
                     },
                     isError = subscriptionNameError != null,
-                    errorMessage = subscriptionNameError
+                    errorMessage = subscriptionNameError?.let { context.getString(context.resources.getIdentifier(it, "string", context.packageName)) }
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Column(
@@ -124,7 +125,7 @@ fun EditSubscription(navController: NavController) {
                         .fillMaxWidth(),
                 ) {
                     PixelArtTextField(
-                        "COSTE",
+                        context.getString(R.string.subscription_cost),
                         cost,
                         onTextChange = {
                             cost = it
@@ -133,11 +134,11 @@ fun EditSubscription(navController: NavController) {
                                 newCost?.let { it1 -> validateSubscriptionCostInput(it1, if (subscriptionCostType == SubscriptionCostType.MONTHLY) "MONTHLY" else "ANNUAL") }
                         },
                         isError = subscriptionCostError != null,
-                        errorMessage = subscriptionCostError,
+                        errorMessage = subscriptionCostError?.let { context.getString(context.resources.getIdentifier(it, "string", context.packageName)) },
                         keyboardType = KeyboardType.Number
                     )
                     PixelArtButton(
-                        text = if (subscriptionCostType == SubscriptionCostType.MONTHLY) "Mensual" else "Anual",
+                        text = if (subscriptionCostType == SubscriptionCostType.MONTHLY) context.getString(R.string.monthly) else context.getString(R.string.annual),
                         onClick = {
                             if (subscriptionCostType == SubscriptionCostType.ANNUAL && reminderDays > 0) {
                                 reminderDays = 30f
@@ -155,7 +156,7 @@ fun EditSubscription(navController: NavController) {
                     renewalDate = date
                 }
                 Spacer(modifier = Modifier.height(24.dp))
-                PixelArtText(if (subscriptionCostType == SubscriptionCostType.MONTHLY) "RECORDAR CADA ${normalizedReminderValue.toInt()} DÍAS" else "RECORDAR CADA ${normalizedReminderValue.toInt()} MESES")
+                PixelArtText(if (subscriptionCostType == SubscriptionCostType.MONTHLY)  context.getString(R.string.reminder_days, normalizedReminderValue.toInt()) else context.getString(R.string.reminder_months, normalizedReminderValue.toInt()))
                 Slider(
                     value = normalizedReminderValue,
                     onValueChange = { newValue ->
@@ -179,7 +180,7 @@ fun EditSubscription(navController: NavController) {
                     modifier = Modifier.padding(start = 56.dp, end = 56.dp)
                 )
                 PixelArtButton(
-                    text = "GUARDAR",
+                    text = context.getString(R.string.save),
                     onClick = {
                         coroutineScope.launch {
                             val costValue = cost.toDoubleOrNull() ?: return@launch

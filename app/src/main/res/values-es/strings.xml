@@ -1,0 +1,89 @@
+<resources>
+    <!-- REGISTER/LOGIN -->
+    <string name="app_name">Checkpoint</string>
+    <string name="catchword">DONDE GUARDAR TUS RECORDATORIOS</string>
+    <string name="user_name">NOMBRE DE USUARIO</string>
+    <string name="user_password">CONTRASEÑA</string>
+    <string name="user_email">CORREO</string>
+    <string name="login">LOGIN</string>
+    <string name="register">REGISTRARSE</string>
+
+    <!-- HOME -->
+    <string name="total_spent">TOTAL GASTADO ESTE MES</string>
+    <string name="next_renewal">RENOVACIÓN MAS CERCANA</string>
+    <string name="active_subs">SUSCRIPCIONES ACTIVAS</string>
+    <string name="no_active_subs">¡NO HAY SUBSCRIPCIONES!</string>
+
+    <!-- EDIT USER -->
+    <string name="reminder_edit_user">PARA CAMBIAR CORREO Y CONTRASEÑA DEBES PONER LA CONTRASEÑA ACTUAL</string>
+    <string name="current_password">CONTRASEÑA ACTUAL</string>
+    <string name="new_password">CONTRASEÑA NUEVA</string>
+    <string name="save">GUARDAR</string>
+    <string name="delete_data">BORRAR DATOS</string>
+
+    <!-- SETTINGS -->
+    <string name="settings">AJUSTES</string>
+    <string name="lenguage">IDIOMA</string>
+    <string name="spanish">Español</string>
+    <string name="english">Inglés</string>
+    <string name="swedish">Sueco</string>
+    <string name="light_dark">MODO CLARO/OSCURO</string>
+    <string name="logout">CERRAR SESIÓN</string>
+
+    <!-- CREATE/EDIT SUBSCRIPTION -->
+    <string name="create_subscription">CREAR SUBSCRIPCIÓN</string>
+    <string name="edit_subscription">EDITAR SUBSCRIPCIÓN</string>
+    <string name="subscription_name">NOMBRE</string>
+    <string name="subscription_cost">COSTE</string>
+    <string name="monthly">MENSUAL</string>
+    <string name="annual">ANUAL</string>
+    <string name="reminder_days">RECORDAR CADA %1$d DÍAS</string>
+    <string name="reminder_months">RECORDAR CADA %1$d MESES</string>
+    <string name="generate">GENERAR</string>
+
+    <!-- MENU VIEW -->
+    <string name="summary">SUMARIO</string>
+    <string name="history">HISTORIAL</string>
+    <string name="list">LISTAR</string>
+    <string name="import_">IMPORTAR</string>
+
+    <!-- ERRORS -->
+    <!-- SUBSCRIPTION COST -->
+    <string name="subscription_cost_error">El coste de la suscripción debe ser un valor positivo o cero</string>
+
+    <!-- SUBSCRIPTION IMAGE -->
+    <string name="subscription_image_error">La imagen de la suscripción debe ser un contenido, archivo o URL web válido.</string>
+
+    <!-- SUBSCRIPTION REMINDER -->
+    <string name="subscription_reminder_error">El recordatorio de la suscripción debe ser en el futuro</string>
+
+    <!-- SUBSCRIPTION RENEWAL DATE -->
+    <string name="subscription_renewalDate_error">La fecha de renovación debe ser futura</string>
+
+    <!-- SUBSCRIPTION NAME -->
+    <string name="subscription_name_error_empty">El nombre de la suscripción no puede estar vacío</string>
+    <string name="subscription_name_error_maxLength">El nombre de la suscripción no puede tener más de 30 caracteres</string>
+    <string name="subscription_name_error_minLength">El nombre de la suscripción no puede tener menos de 4 caracteres</string>
+    <string name="subscription_name_error_wrongFormat">El nombre de la suscripción debe comenzar con una letra y terminar con una letra o número</string>
+
+    <!-- USER NAME -->
+    <string name="user_name_error_empty">¿Sin nombre? ¡Eso es un problema!</string>
+    <string name="user_name_error_minLength">¡Nombre muy corto! Debe tener al menos 3 caracteres.</string>
+    <string name="user_name_error_maxLength">¡Nombre demasiado largo! Por favor, que no supere los 15 caracteres.</string>
+    <string name="user_name_error_wrongFormat">¡Ups! El nombre debe comenzar con una letra y terminar con una letra o número.</string>
+
+    <!-- USER PASSWORD -->
+    <string name="user_password_error_empty">¡La contraseña no puede estar vacía!</string>
+    <string name="user_password_error_minLength">¡Contraseña demasiado corta! Debe tener al menos 8 caracteres.</string>
+    <string name="user_password_error_maxLength">¡Contraseña demasiado larga! No debe superar los 20 caracteres.</string>
+    <string name="user_password_error_wrongFormat">La contraseña debe contener al menos una letra mayúscula, una minúscula y un número.</string>
+
+    <!-- USER EMAIL -->
+    <string name="user_email_error_empty">¡El correo no puede estar vacío!</string>
+    <string name="user_email_error_wrongFormat">Por favor, ingresa una dirección de correo válida.</string>
+
+
+
+
+
+</resources>

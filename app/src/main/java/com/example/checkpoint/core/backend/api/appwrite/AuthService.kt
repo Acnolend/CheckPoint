@@ -8,6 +8,8 @@ import io.appwrite.services.Databases
 import io.appwrite.services.Storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import io.appwrite.enums.OAuthProvider
+import androidx.activity.ComponentActivity
 
 class AuthService(context: Context) {
     private val client = Client(context)
@@ -153,7 +155,6 @@ class AuthService(context: Context) {
                 println(fileId)
                 if (fileId != null) {
                     storage.deleteFile("67f4196f003826072308", fileId)
-                } else {
                 }
                 database.deleteDocument(
                     databaseId = "67f16b4800153970e87a",
@@ -190,6 +191,17 @@ class AuthService(context: Context) {
         } catch (e: AppwriteException) {
             Result.failure(e)
         }
+    }
+
+    suspend fun signInWithGoogle(activity: ComponentActivity) {
+        val successUrl = "https://fra.cloud.appwrite.io/v1/account/sessions/oauth2/callback/google/67f11f87002b613f4e14"
+        val failureUrl = "https://fra.cloud.appwrite.io/v1/account/sessions/oauth2/callback/google/67f11f87002b613f4e14"
+        account.createOAuth2Session(
+            provider = OAuthProvider.GOOGLE,
+            success = successUrl,
+            failure = failureUrl,
+            activity = activity
+        )
     }
 
     private fun generateRandomId(length: Int = 36): String {

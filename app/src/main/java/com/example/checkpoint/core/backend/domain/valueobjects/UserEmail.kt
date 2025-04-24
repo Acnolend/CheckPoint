@@ -11,8 +11,8 @@ data class UserEmail(
 
     companion object {
         private const val EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$"
-        private const val ERROR_EMPTY = "Email cannot be empty!"
-        private const val ERROR_INVALID_FORMAT = "Please enter a valid email address!"
+        const val ERROR_EMPTY = "Email cannot be empty!"
+        const val ERROR_INVALID_FORMAT = "Please enter a valid email address!"
     }
 
     var email: String

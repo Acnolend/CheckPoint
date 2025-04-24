@@ -11,7 +11,7 @@ data class SubscriptionCost(
     }
 
     companion object {
-        private const val ERROR_WRONG_FORMAT = "The cost of the subscription must be a positive value or zero"
+        const val ERROR_WRONG_FORMAT = "ERROR_WRONG_FORMAT"
     }
 
     var cost: Double

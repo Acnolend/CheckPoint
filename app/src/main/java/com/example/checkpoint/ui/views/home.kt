@@ -70,8 +70,12 @@ fun Home(navController: NavController) {
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
                 PixelArtText(
-                    text = "TOTAL GASTADO ESTE MES",
-                    fontSize = 28.sp
+                    text = context.getString(R.string.total_spent),
+                    fontSize = when (context.getString(R.string.total_spent).length) {
+                        in 0..15 -> 28.sp
+                        in 15..25 -> 28.sp
+                        else -> 22.sp
+                    }
                 )
                 Spacer(modifier = Modifier.height(48.dp))
                 PixelArtText(
@@ -80,7 +84,7 @@ fun Home(navController: NavController) {
                 )
                 Spacer(modifier = Modifier.height(48.dp))
                 PixelArtText(
-                    text = "RENOVACIÓN MAS CERCANA",
+                    text = context.getString(R.string.next_renewal),
                     fontSize = 28.sp
                 )
                 Spacer(modifier = Modifier.height(48.dp))
@@ -126,13 +130,13 @@ fun Home(navController: NavController) {
 
                 } else {
                     PixelArtText(
-                        text = "¡NO HAY SUBSCRIPCIONES!",
+                        text = context.getString(R.string.no_active_subs),
                         fontSize = 28.sp
                     )
                 }
                 Spacer(modifier = Modifier.height(48.dp))
                 PixelArtText(
-                    text = "SUSCRIPCIONES ACTIVAS",
+                    text = context.getString(R.string.active_subs),
                     fontSize = 28.sp,
                     modifier = Modifier.testTag("activeSubsTitle")
                 )

@@ -1,0 +1,84 @@
+<resources>
+    <!-- REGISTER/LOGIN -->
+    <string name="app_name">CHECKPOINT</string>
+    <string name="catchword">DÄR DU LAGRAR DINA PÅMINNELSER</string>
+    <string name="user_name">ANVÄNDARNAMN</string>
+    <string name="user_password">LÖSENORD</string>
+    <string name="user_email">E-POST</string>
+    <string name="login">LOGGA IN</string>
+    <string name="register">REGISTRERA</string>
+
+    <!-- HOME -->
+    <string name="total_spent">TOTALT UTGIVET DEN HÄR MÅNADEN</string>
+    <string name="next_renewal">NÄRMASTE FÖRNYELSE</string>
+    <string name="active_subs">AKTIVA ABONNEMANG</string>
+    <string name="no_active_subs">INGA ABONNEMANG!</string>
+
+    <!-- EDIT USER -->
+    <string name="reminder_edit_user">FÖR ATT ÄNDRA E-POST OCH LÖSENORD MÅSTE DU ANGE DITT NUVARANDE LÖSENORD</string>
+    <string name="current_password">NUVARANDE LÖSENORD</string>
+    <string name="new_password">NYTT LÖSENORD</string>
+    <string name="save">SPARA</string>
+    <string name="delete_data">RADERA DATA</string>
+
+    <!-- SETTINGS -->
+    <string name="settings">INSTÄLLNINGAR</string>
+    <string name="lenguage">SPRÅK</string>
+    <string name="spanish">Spanska</string>
+    <string name="english">Engelska</string>
+    <string name="swedish">Svenska</string>
+    <string name="light_dark">LJUS/MÖRKT LÄGE</string>
+    <string name="logout">LOGGA UT</string>
+
+    <!-- CREATE/EDIT SUBSCRIPTION -->
+    <string name="create_subscription">SKAPA ABONNEMANG</string>
+    <string name="edit_subscription">REDIGERA ABONNEMANG</string>
+    <string name="subscription_name">NAMN</string>
+    <string name="subscription_cost">KOSTNAD</string>
+    <string name="monthly">MÅNADSVIS</string>
+    <string name="annual">ÅRLIGEN</string>
+    <string name="reminder_days">PÅMINNELSE VAR %1$d DAGAR</string>
+    <string name="reminder_months">PÅMINNELSE VAR %1$d MÅNADER</string>
+    <string name="generate">GENERERA</string>
+
+    <!-- MENU VIEW -->
+    <string name="summary">SAMMANFATTNING</string>
+    <string name="history">HISTORIK</string>
+    <string name="list">LISTA</string>
+    <string name="import_">IMPORTERA</string>
+
+    <!-- ERRORS -->
+    <!-- SUBSCRIPTION COST -->
+    <string name="subscription_cost_error">Abonnemangskostnaden måste vara ett positivt värde eller noll</string>
+
+    <!-- SUBSCRIPTION IMAGE -->
+    <string name="subscription_image_error">Abonnemangsbilden måste vara ett giltigt innehåll, en fil eller en webbadress</string>
+
+    <!-- SUBSCRIPTION REMINDER -->
+    <string name="subscription_reminder_error">Abonnemangets påminnelse måste vara i framtiden</string>
+
+    <!-- SUBSCRIPTION RENEWAL DATE -->
+    <string name="subscription_renewalDate_error">Förnyelsedatumet måste vara i framtiden</string>
+
+    <!-- SUBSCRIPTION NAME -->
+    <string name="subscription_name_error_empty">Abonnemangsnamnet får inte vara tomt</string>
+    <string name="subscription_name_error_maxLength">Abonnemangsnamnet får inte vara längre än 30 tecken</string>
+    <string name="subscription_name_error_minLength">Abonnemangsnamnet måste vara minst 4 tecken långt</string>
+    <string name="subscription_name_error_wrongFormat">Abonnemangsnamnet måste börja med en bokstav och sluta med en bokstav eller siffra</string>
+
+    <!-- USER NAME -->
+    <string name="user_name_error_empty">Inget namn? Det är ett problem!</string>
+    <string name="user_name_error_minLength">Namnet är för kort! Minst 3 tecken!</string>
+    <string name="user_name_error_maxLength">Namnet är för långt! Håll det under 15 tecken!</string>
+    <string name="user_name_error_wrongFormat">Oj! Namnet måste börja med en bokstav och sluta med en bokstav eller siffra!</string>
+
+    <!-- USER PASSWORD -->
+    <string name="user_password_error_empty">Lösenordet får inte vara tomt!</string>
+    <string name="user_password_error_minLength">Lösenordet är för kort! Minst 8 tecken.</string>
+    <string name="user_password_error_maxLength">Lösenordet är för långt! Max 20 tecken.</string>
+    <string name="user_password_error_wrongFormat">Lösenordet måste innehålla minst en versal, en gemen och en siffra.</string>
+
+    <!-- USER EMAIL -->
+    <string name="user_email_error_empty">E-post får inte vara tomt!</string>
+    <string name="user_email_error_wrongFormat">Ange en giltig e-postadress!</string>
+</resources>

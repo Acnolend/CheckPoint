@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.checkpoint.R
 import com.example.checkpoint.application.services.serviceDeleteSubscription
 import com.example.checkpoint.application.usecases.usecaseDeleteSubscription
 import com.example.checkpoint.core.backend.api.appwrite.AppwriteService
@@ -50,7 +51,7 @@ fun ListSubscription(navController: NavController) {
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
                 PixelArtText(
-                    text = "SUSCRIPCIONES ACTIVAS",
+                    text = context.getString(R.string.active_subs),
                     fontSize = 28.sp,
                     color = Color(0xFFE64CF0),
                     fontWeight = FontWeight.Bold

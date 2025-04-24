@@ -1,5 +1,6 @@
 package com.example.checkpoint.ui.views
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -35,10 +36,10 @@ import com.example.checkpoint.ui.views.data_model.validateUserEmailInput
 import com.example.checkpoint.ui.views.data_model.validateUserNameInput
 import com.example.checkpoint.ui.views.data_model.validateUserPasswordInput
 import androidx.compose.ui.platform.testTag
-import com.google.firebase.BuildConfig
-import kotlinx.coroutines.delay
+import com.example.checkpoint.R
 import kotlinx.coroutines.launch
 
+@SuppressLint("DiscouragedApi")
 @Composable
 fun Register(navController: NavController) {
     val context: Context = LocalContext.current
@@ -79,47 +80,47 @@ fun Register(navController: NavController) {
             ) {
                 Spacer(modifier = Modifier.height(4.dp))
                 PixelArtTextField(
-                    "NOMBRE DE USUARIO",
+                    context.getString(R.string.user_name),
                     name,
                     onTextChange = {
                         name = it
                         userNameError = validateUserNameInput(it)
                     },
                     isError = userNameError != null,
-                    errorMessage = userNameError,
+                    errorMessage = userNameError?.let { context.getString(context.resources.getIdentifier(it, "string", context.packageName)) },
                     modifier = Modifier.testTag("usernameField")
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 PixelArtTextField(
-                    "CONTRASEÑA",
+                    context.getString(R.string.user_password),
                     password,
                     onTextChange =
                     { password = it
                         userPasswordError = validateUserPasswordInput(it)
                     },
                     isError = userPasswordError != null,
-                    errorMessage = userPasswordError,
+                    errorMessage = userPasswordError?.let { context.getString(context.resources.getIdentifier(it, "string", context.packageName)) },
                     isPassword = true,
                     modifier = Modifier.testTag("passwordField")
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 PixelArtTextField(
-                    "CORREO",
+                    context.getString(R.string.user_email),
                     email,
                     onTextChange = {
                         email = it
                         userEmailError = validateUserEmailInput(it)
                     },
                     isError = userEmailError != null,
-                    errorMessage = userEmailError,
+                    errorMessage = userEmailError?.let { context.getString(context.resources.getIdentifier(it, "string", context.packageName)) },
                     keyboardType = KeyboardType.Email,
                     modifier = Modifier.testTag("emailField")
                 )
 
-                PixelArtText("LOGIN", modifier = Modifier.testTag("toLoginButton").clickable { navController.navigate("login") })
+                PixelArtText(context.getString(R.string.login), modifier = Modifier.testTag("toLoginButton").clickable { navController.navigate("login") })
                 Spacer(modifier = Modifier.height(12.dp))
                 PixelArtButton(
-                    text = "REGISTRARSE",
+                    text = context.getString(R.string.register),
                     onClick = {
                         coroutineScope.launch {
                             val result = authService.signUp(email, password, name)

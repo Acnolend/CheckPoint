@@ -1,7 +1,10 @@
 package com.example.checkpoint.ui.views
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,13 +23,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.checkpoint.R
 import com.example.checkpoint.core.backend.api.appwrite.AuthService
 import com.example.checkpoint.ui.components.LinesRegisterLogin
 import com.example.checkpoint.ui.components.PixelArtButton
@@ -35,6 +43,7 @@ import com.example.checkpoint.ui.views.data_model.validateUserEmailInput
 import com.example.checkpoint.ui.views.data_model.validateUserPasswordInput
 import kotlinx.coroutines.launch
 
+@SuppressLint("DiscouragedApi")
 @Composable
 fun Login(navController: NavController) {
     val context: Context = LocalContext.current
@@ -68,33 +77,33 @@ fun Login(navController: NavController) {
                 modifier = Modifier.align(Alignment.Center)
             ) {
                 PixelArtTextField(
-                    "CORREO",
+                    context.getString(R.string.user_email),
                     email,
                     onTextChange = {
                         email = it
                         userEmailError = validateUserEmailInput(it)
                     },
                     isError = userEmailError != null,
-                    errorMessage = userEmailError,
+                    errorMessage = userEmailError?.let { context.getString(context.resources.getIdentifier(it, "string", context.packageName)) },
                     keyboardType = KeyboardType.Email
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 PixelArtTextField(
-                    "CONTRASEÑA",
+                    context.getString(R.string.user_password),
                     password,
                     onTextChange =
                     { password = it
                         userPasswordError = validateUserPasswordInput(it)
                     },
                     isError = userPasswordError != null,
-                    errorMessage = userPasswordError,
+                    errorMessage = userPasswordError?.let { context.getString(context.resources.getIdentifier(it, "string", context.packageName)) },
                     isPassword = true
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                PixelArtText("REGISTRARSE", modifier = Modifier.clickable { navController.navigate("register") })
+                PixelArtText(context.getString(R.string.register), modifier = Modifier.clickable { navController.navigate("register") })
                 Spacer(modifier = Modifier.height(16.dp))
                 PixelArtButton(
-                    text = "LOGIN",
+                    text = context.getString(R.string.login),
                     onClick = {
                         coroutineScope.launch {
                             val result = authService.signIn(email, password)
@@ -110,6 +119,33 @@ fun Login(navController: NavController) {
                     errorMessages = listOf(userEmailError.orEmpty(), userPasswordError.orEmpty()),
                     requiredFields = listOf(email, password)
                 )
+                Spacer(modifier = Modifier.height(16.dp))
+                IconButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            try {
+                                (context as? ComponentActivity)?.let {
+                                    authService.signInWithGoogle(
+                                        it
+                                    )
+                                }
+                                navController.navigate("home")
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                              },
+                    modifier = Modifier
+                        .clip(RectangleShape)
+                        .size(40.dp)
+
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.icon_google),
+                        contentDescription = "Center Image",
+                        modifier = Modifier.fillMaxSize().clip(RectangleShape)
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.weight(1f))

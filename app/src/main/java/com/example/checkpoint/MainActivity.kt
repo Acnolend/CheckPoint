@@ -21,6 +21,7 @@ import com.example.checkpoint.ui.views.Home
 import com.example.checkpoint.core.backend.api.appwrite.AuthService
 import com.example.checkpoint.ui.views.EditSubscription
 import com.example.checkpoint.ui.views.EditUser
+import com.example.checkpoint.ui.views.ImportSubscriptionsView
 import com.example.checkpoint.ui.views.ListSubscription
 import com.example.checkpoint.ui.views.Login
 import com.example.checkpoint.ui.views.MenuView
@@ -81,6 +82,9 @@ fun NavigationGraph(navController: NavHostController, isAuthenticated: Boolean) 
         }
         composable("settings") {
             Settings(navController)
+        }
+        composable("import_subscriptions") {
+            ImportSubscriptionsView(navController)
         }
     }
 }

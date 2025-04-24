@@ -1,5 +1,6 @@
 package com.example.checkpoint.ui.views
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -39,6 +40,7 @@ import com.example.checkpoint.ui.views.data_model.validateUserPasswordInput
 import kotlinx.coroutines.launch
 
 
+@SuppressLint("DiscouragedApi")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EditUser(navController: NavController) {
@@ -89,56 +91,56 @@ fun EditUser(navController: NavController) {
                 Spacer(modifier = Modifier.height(32.dp))
 
                 PixelArtTextField(
-                    "NOMBRE",
+                    context.getString(R.string.user_name),
                     name,
                     onTextChange = {
                         name = it
                         userNameError = validateUserNameInput(it)
                                    },
                     isError = userNameError != null,
-                    errorMessage = userNameError
+                    errorMessage = userNameError?.let { context.getString(context.resources.getIdentifier(it, "string", context.packageName)) }
                 )
                 Spacer(modifier = Modifier.height(24.dp))
-                PixelArtText("PARA CAMBIAR CORREO Y CONTRASEÑA DEBES PONER LA CONTRASEÑA ACTUAL", modifier = Modifier.fillMaxSize(), textAlign = TextAlign.Center)
+                PixelArtText(context.getString(R.string.reminder_edit_user), modifier = Modifier.fillMaxSize(), textAlign = TextAlign.Center)
                 Spacer(modifier = Modifier.height(24.dp))
                 PixelArtTextField(
-                    "CONTRASEÑA ACTUAL",
+                    context.getString(R.string.current_password),
                     currentPassword,
                     onTextChange =
                     { currentPassword= it
                         userCurrentPasswordError = validateUserPasswordInput(it)
                     },
                     isError = userCurrentPasswordError != null,
-                    errorMessage = userCurrentPasswordError,
+                    errorMessage = userCurrentPasswordError?.let { context.getString(context.resources.getIdentifier(it, "string", context.packageName)) },
                     isPassword = true
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 PixelArtTextField(
-                    "CONTRASEÑA NUEVA",
+                    context.getString(R.string.new_password),
                     newPassword,
                     onTextChange =
                     { newPassword= it
                         userNewPasswordError = validateUserPasswordInput(it)
                     },
                     isError = userNewPasswordError != null,
-                    errorMessage = userNewPasswordError,
+                    errorMessage = userNewPasswordError?.let { context.getString(context.resources.getIdentifier(it, "string", context.packageName)) },
                     isPassword = true
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 PixelArtTextField(
-                    "CORREO",
+                    context.getString(R.string.user_email),
                     currentEmail,
                     onTextChange = {
                         currentEmail = it
                         userEmailError = validateUserEmailInput(it)
                     },
                     isError = userEmailError != null,
-                    errorMessage = userEmailError,
+                    errorMessage = userEmailError?.let { context.getString(context.resources.getIdentifier(it, "string", context.packageName)) },
                     keyboardType = KeyboardType.Email
                 )
                 Spacer(modifier = Modifier.height(32.dp))
                 PixelArtButton(
-                    text = "GUARDAR",
+                    text = context.getString(R.string.save),
                     onClick = {
                         coroutineScope.launch {
                             authService.editUser(name, currentEmail, newPassword, currentPassword)
@@ -149,7 +151,7 @@ fun EditUser(navController: NavController) {
                 )
                 Spacer(modifier = Modifier.height(32.dp))
                 PixelArtButton(
-                    text = "BORRAR DATOS",
+                    text = context.getString(R.string.delete_data),
                     onClick = {
                         coroutineScope.launch {
                             authService.deleteUserAndSubscriptions(authService.getUserIdActual().toString().substringAfter("(").substringBefore(")"))

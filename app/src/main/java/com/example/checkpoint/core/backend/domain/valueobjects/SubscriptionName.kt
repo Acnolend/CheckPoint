@@ -11,12 +11,12 @@ data class SubscriptionName(
 
     companion object {
         private const val MIN_LENGTH = 4
-        private const val MAX_LENGTH = 100
+        private const val MAX_LENGTH = 30
         private const val REGULAR_EXPRESSION = "^[a-zA-Z].*[a-zA-Z0-9]$"
-        private const val ERROR_EMPTY = "The name of the subscription cannot be empty"
-        private const val ERROR_MIN_LENGTH = "The name of the subscription cannot have less than $MIN_LENGTH characters"
-        private const val ERROR_MAX_LENGTH = "The name of the subscription cannot have more than $MAX_LENGTH characters"
-        private const val ERROR_WRONG_FORMAT = "The name of the subscription doesn't comply with the pattern"
+        const val ERROR_EMPTY = "The name of the subscription cannot be empty"
+        const val ERROR_MIN_LENGTH = "The name of the subscription cannot have less than $MIN_LENGTH characters"
+        const val ERROR_MAX_LENGTH = "The name of the subscription cannot have more than $MAX_LENGTH characters"
+        const val ERROR_WRONG_FORMAT = "The subscription name must start with a letter and end with a letter or number"
     }
 
     var name: String

@@ -13,10 +13,10 @@ data class UserPassword(
         private const val MIN_LENGTH = 8
         private const val MAX_LENGTH = 20
         private const val PASSWORD_REGEX = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).+$"
-        private const val ERROR_EMPTY = "Password cannot be empty!"
-        private const val ERROR_MIN_LENGTH = "Password is too short! It must be at least $MIN_LENGTH characters."
-        private const val ERROR_MAX_LENGTH = "Password is too long! It must be no longer than $MAX_LENGTH characters."
-        private const val ERROR_WRONG_FORMAT = "Password must contain at least one uppercase letter, one lowercase letter, and one number."
+        const val ERROR_EMPTY = "Password cannot be empty!"
+        const val ERROR_MIN_LENGTH = "Password is too short! It must be at least $MIN_LENGTH characters."
+        const val ERROR_MAX_LENGTH = "Password is too long! It must be no longer than $MAX_LENGTH characters."
+        const val ERROR_WRONG_FORMAT = "Password must contain at least one uppercase letter, one lowercase letter, and one number."
     }
 
     var password: String

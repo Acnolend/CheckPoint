@@ -13,7 +13,13 @@ fun validateSubscriptionNameInput(input: String): String? {
         SubscriptionName(input)
         null
     } catch (e: IllegalArgumentException) {
-        e.message
+        when (e.message) {
+            SubscriptionName.ERROR_EMPTY -> "subscription_name_error_empty"
+            SubscriptionName.ERROR_MAX_LENGTH -> "subscription_name_error_maxLength"
+            SubscriptionName.ERROR_MIN_LENGTH -> "subscription_name_error_minLength"
+            SubscriptionName.ERROR_WRONG_FORMAT -> "subscription_name_error_wrongFormat"
+            else -> null
+        }
     }
 }
 
@@ -23,7 +29,7 @@ fun validateSubscriptionCostInput(cost: Double, type: String): String? {
         SubscriptionCost(cost, subscriptionCostType)
         null
     } catch (e: IllegalArgumentException) {
-        e.message
+        "subscription_cost_error"
     }
 }
 
@@ -32,7 +38,7 @@ fun validateSubscriptionReminderInput(input: LocalDateTime): String? {
         SubscriptionReminder(input)
         null
     } catch (e: IllegalArgumentException) {
-        e.message
+        "subscription_reminder_error"
     }
 }
 
@@ -41,7 +47,7 @@ fun validateSubscriptionRenewalDateInput(input: LocalDateTime): String? {
         SubscriptionRenewalDate(input)
         null
     } catch (e: IllegalArgumentException) {
-        e.message
+        "subscription_renewalDate_error"
     }
 }
 
