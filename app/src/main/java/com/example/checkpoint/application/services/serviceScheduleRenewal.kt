@@ -15,7 +15,11 @@ import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun scheduleRenewalReminder(context: Context, subscription: Subscription, isDebugMode: Boolean = false) {
+fun scheduleRenewal(context: Context, subscription: Subscription, isDebugMode: Boolean = false) {
+    val workManager = WorkManager.getInstance(context)
+
+    workManager.cancelAllWorkByTag(subscription.ID)
+
     val delay = if (isDebugMode) {
         10000L  // 10 segundos en modo debug
     } else {
@@ -35,6 +39,7 @@ fun scheduleRenewalReminder(context: Context, subscription: Subscription, isDebu
     val workRequest = OneTimeWorkRequestBuilder<SubscriptionRenewalWorker>()
         .setInputData(data)
         .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+        .addTag("${subscription.ID}_renewal")
         .build()
 
     WorkManager.getInstance(context).enqueue(workRequest)

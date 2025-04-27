@@ -2,6 +2,7 @@ package com.example.checkpoint.core.backend.api.appwrite
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.checkpoint.application.services.isDefaultImageUrl
 import com.example.checkpoint.core.backend.domain.entities.Subscription
 import com.example.checkpoint.core.backend.domain.enumerate.SubscriptionCostType
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionCost
@@ -49,7 +50,9 @@ class SubscriptionRepository(private val appwriteService: AppwriteService) {
     }
 
     suspend fun deleteSubscription(subscription: Subscription) {
-        appwriteService.deleteStorage(subscription.image.image)
+        if (!(isDefaultImageUrl(subscription.image.image))) {
+            appwriteService.deleteStorage(subscription.image.image)
+        }
         appwriteService.delete(databaseId, collectionId, subscription.ID)
     }
 
@@ -105,4 +108,6 @@ class SubscriptionRepository(private val appwriteService: AppwriteService) {
         )
         appwriteService.edit(databaseId, collectionId, subscriptionId, dataMap)
     }
+
+
 }

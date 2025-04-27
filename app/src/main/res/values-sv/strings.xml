@@ -35,10 +35,18 @@
     <string name="edit_subscription">REDIGERA ABONNEMANG</string>
     <string name="subscription_name">NAMN</string>
     <string name="subscription_cost">KOSTNAD</string>
+    <string name="daily">DAGLIG</string>
+    <string name="weekly">VECKOVIS</string>
+    <string name="biweekly">TVÅVECKORS</string>
     <string name="monthly">MÅNADSVIS</string>
-    <string name="annual">ÅRLIGEN</string>
-    <string name="reminder_days">PÅMINNELSE VAR %1$d DAGAR</string>
-    <string name="reminder_months">PÅMINNELSE VAR %1$d MÅNADER</string>
+    <string name="bimonthly">TVÅMÅNADERS</string>
+    <string name="quarterly">KVARTALSVIS</string>
+    <string name="semiannual">HALVÅRLIG</string>
+    <string name="annual">ÅRLIG</string>
+    <string name="select_subscription_type">ABONNEMANGSTYP</string>
+    <string name="renewal_date_input">FÖRNYELSE: %1$s</string>
+    <string name="renewal_date">FÖRNYELSEDATUM</string>
+    <string name="reminder_days_before">PÅMINNELSE %1$d DAGAR INNAN</string>
     <string name="generate">GENERERA</string>
 
     <!-- MENU VIEW -->
@@ -46,6 +54,10 @@
     <string name="history">HISTORIK</string>
     <string name="list">LISTA</string>
     <string name="import_">IMPORTERA</string>
+
+    <!-- LIST SUBSCRIPTION -->
+    <string name="search">Sök på namn...</string>
+    <string name="all">ALLA</string>
 
     <!-- ERRORS -->
     <!-- SUBSCRIPTION COST -->
@@ -81,4 +93,10 @@
     <!-- USER EMAIL -->
     <string name="user_email_error_empty">E-post får inte vara tomt!</string>
     <string name="user_email_error_wrongFormat">Ange en giltig e-postadress!</string>
+
+    <!-- NOTIFICATIONS -->
+    <string name="subscription_renewal_channel">Prenumerationsförnyelse</string>
+    <string name="subscription_renewal_channel_description">Påminnelser om prenumerationsförnyelse</string>
+    <string name="subscription_renewal_notification_title">Prenumerationsförnyelse</string>
+    <string name="subscription_renewal_notification_text">Din prenumeration är på väg att förnyas!</string>
 </resources>

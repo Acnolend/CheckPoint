@@ -16,8 +16,12 @@ import java.util.concurrent.TimeUnit
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun scheduleReminder(context: Context, subscription: Subscription, isDebugMode: Boolean = false) {
+    val workManager = WorkManager.getInstance(context)
+
+    workManager.cancelAllWorkByTag(subscription.ID)
+
     val delay = if (isDebugMode) {
-        5000L  // 5 segundos en modo debug
+        5000L
     } else {
         val reminderDateMillis = subscription.reminder.dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         val delayMillis = reminderDateMillis - System.currentTimeMillis()
@@ -35,6 +39,7 @@ fun scheduleReminder(context: Context, subscription: Subscription, isDebugMode: 
     val workRequest = OneTimeWorkRequestBuilder<SubscriptionReminderWorker>()
         .setInputData(data)
         .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+        .addTag("${subscription.ID}_reminder")
         .build()
 
     WorkManager.getInstance(context).enqueue(workRequest)

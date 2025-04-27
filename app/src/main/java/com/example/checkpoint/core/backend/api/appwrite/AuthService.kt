@@ -10,10 +10,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import io.appwrite.enums.OAuthProvider
 import androidx.activity.ComponentActivity
+import com.example.checkpoint.application.services.isDefaultImageUrl
 
 class AuthService(context: Context) {
     private val client = Client(context)
-        .setEndpoint("https://cloud.appwrite.io/v1")
+        .setEndpoint("https://fra.cloud.appwrite.io/v1")
         .setProject("67f11f87002b613f4e14")
         .setSelfSigned(true)
 
@@ -153,7 +154,7 @@ class AuthService(context: Context) {
                 val imageUrl = document.data["image"] as String?
                 val fileId = extractFileIdFromUrl(imageUrl)
                 println(fileId)
-                if (fileId != null) {
+                if (fileId != null && imageUrl != null && !isDefaultImageUrl(imageUrl)) {
                     storage.deleteFile("67f4196f003826072308", fileId)
                 }
                 database.deleteDocument(
@@ -193,15 +194,29 @@ class AuthService(context: Context) {
         }
     }
 
-    suspend fun signInWithGoogle(activity: ComponentActivity) {
-        val successUrl = "https://fra.cloud.appwrite.io/v1/account/sessions/oauth2/callback/google/67f11f87002b613f4e14"
-        val failureUrl = "https://fra.cloud.appwrite.io/v1/account/sessions/oauth2/callback/google/67f11f87002b613f4e14"
+    suspend fun signInWithGoogle(context: Context, activity: ComponentActivity) {
         account.createOAuth2Session(
             provider = OAuthProvider.GOOGLE,
-            success = successUrl,
-            failure = failureUrl,
-            activity = activity
+            activity = activity,
+            scopes = listOf(
+                "https://www.googleapis.com/auth/gmail.readonly"
+            )
         )
+        saveToken(context)
+    }
+
+    fun getToken(context: Context): String? {
+        val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        return sharedPreferences.getString("auth_token", null)
+    }
+
+    suspend private fun saveToken(context: Context) {
+        val session = account.getSession("current")
+        val googleToken = session.providerAccessToken
+        val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString("auth_token", googleToken)
+        editor.apply()
     }
 
     private fun generateRandomId(length: Int = 36): String {

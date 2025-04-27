@@ -35,10 +35,18 @@
     <string name="edit_subscription">EDITAR SUBSCRIPCIÓN</string>
     <string name="subscription_name">NOMBRE</string>
     <string name="subscription_cost">COSTE</string>
+    <string name="daily">DIARIA</string>
+    <string name="weekly">SEMANAL</string>
+    <string name="biweekly">QUINCENAL</string>
     <string name="monthly">MENSUAL</string>
+    <string name="bimonthly">BIMESTRAL</string>
+    <string name="quarterly">TRIMESTRAL</string>
+    <string name="semiannual">SEMESTRAL</string>
     <string name="annual">ANUAL</string>
-    <string name="reminder_days">RECORDAR CADA %1$d DÍAS</string>
-    <string name="reminder_months">RECORDAR CADA %1$d MESES</string>
+    <string name="select_subscription_type">TIPO DE SUSCRIPCIÓN</string>
+    <string name="renewal_date_input">RENOVACIÓN: %1$s</string>
+    <string name="renewal_date">FECHA DE RENOVACIÓN</string>
+    <string name="reminder_days_before">RECORDAR %1$d DÍA(S) ANTES</string>
     <string name="generate">GENERAR</string>
 
     <!-- MENU VIEW -->
@@ -46,6 +54,10 @@
     <string name="history">HISTORIAL</string>
     <string name="list">LISTAR</string>
     <string name="import_">IMPORTAR</string>
+
+    <!-- LIST SUBSCRIPTION -->
+    <string name="search">Buscar por nombre...</string>
+    <string name="all">TODAS</string>
 
     <!-- ERRORS -->
     <!-- SUBSCRIPTION COST -->
@@ -82,8 +94,9 @@
     <string name="user_email_error_empty">¡El correo no puede estar vacío!</string>
     <string name="user_email_error_wrongFormat">Por favor, ingresa una dirección de correo válida.</string>
 
-
-
-
-
+    <!-- NOTIFICATIONS -->
+    <string name="subscription_renewal_channel">Renovación de suscripción</string>
+    <string name="subscription_renewal_channel_description">Notificaciones para recordatorios de renovación de suscripción</string>
+    <string name="subscription_renewal_notification_title">Renovación de suscripción</string>
+    <string name="subscription_renewal_notification_text">¡Tu suscripción está a punto de renovarse!</string>
 </resources>

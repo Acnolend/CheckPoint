@@ -35,10 +35,18 @@
     <string name="edit_subscription">EDIT SUBSCRIPTION</string>
     <string name="subscription_name">NAME</string>
     <string name="subscription_cost">COST</string>
+    <string name="daily">DAILY</string>
+    <string name="weekly">WEEKLY</string>
+    <string name="biweekly">BIWEEKLY</string>
     <string name="monthly">MONTHLY</string>
+    <string name="bimonthly">BIMONTHLY</string>
+    <string name="quarterly">QUARTERLY</string>
+    <string name="semiannual">SEMIANNUAL</string>
     <string name="annual">ANNUAL</string>
-    <string name="reminder_days">REMEMBER EVERY %1$d DAYS</string>
-    <string name="reminder_months">REMEMBER EVERY %1$d MONTHS</string>
+    <string name="select_subscription_type">SUBSCRIPTION TYPE</string>
+    <string name="renewal_date_input">RENEWAL: %1$s</string>
+    <string name="renewal_date">RENEWAL DATE</string>
+    <string name="reminder_days_before">REMEMBER %1$d DAY(S) BEFORE</string>
     <string name="generate">GENERATE</string>
 
     <!-- MENU VIEW -->
@@ -46,6 +54,10 @@
     <string name="history">HISTORY</string>
     <string name="list">LIST</string>
     <string name="import_">IMPORT</string>
+
+    <!-- LIST SUBSCRIPTION -->
+    <string name="search">Search by name...</string>
+    <string name="all">ALL</string>
 
     <!-- ERRORS -->
     <!-- SUBSCRIPTION COST -->
@@ -81,4 +93,10 @@
     <!-- USER EMAIL -->
     <string name="user_email_error_empty">Email cannot be empty!</string>
     <string name="user_email_error_wrongFormat">Please enter a valid email address!</string>
+
+    <!-- NOTIFICATIONS -->
+    <string name="subscription_renewal_channel">Subscription Renewal</string>
+    <string name="subscription_renewal_channel_description">Notifications for subscription renewal reminders</string>
+    <string name="subscription_renewal_notification_title">Subscription Renewal</string>
+    <string name="subscription_renewal_notification_text">Your subscription is due for renewal!</string>
 </resources>

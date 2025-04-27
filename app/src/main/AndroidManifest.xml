@@ -25,12 +25,12 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="io.appwrite.views.CallbackActivity" android:exported="true">
+        <activity android:exported="true" android:name="io.appwrite.views.CallbackActivity">
             <intent-filter android:label="android_web_auth">
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="appwrite-callback-67f11f87002b613f4e14"/>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="appwrite-callback-67f11f87002b613f4e14" />
             </intent-filter>
         </activity>
 

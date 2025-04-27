@@ -19,7 +19,7 @@ import java.util.UUID
 class AppwriteService(context: Context) {
 
     private val client = Client(context)
-        .setEndpoint("https://cloud.appwrite.io/v1")
+        .setEndpoint("https://fra.cloud.appwrite.io/v1")
         .setProject("67f11f87002b613f4e14")
         .setSelfSigned(true)
 

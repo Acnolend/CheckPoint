@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import com.example.checkpoint.R
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -35,8 +36,8 @@ fun DatePickerField(onDateSelected: (LocalDateTime) -> Unit) {
 
     PixelArtButton(
         text = selectedDate?.let {
-            "RENOVACIÓN: ${it.format(formatter)}"
-        } ?: "FECHA DE RENOVACIÓN",
+            context.getString(R.string.renewal_date_input, it.format(formatter))
+        } ?: context.getString(R.string.renewal_date),
         onClick = {
             datePickerDialog.show()
         }

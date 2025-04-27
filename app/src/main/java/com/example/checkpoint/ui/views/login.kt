@@ -126,7 +126,7 @@ fun Login(navController: NavController) {
                             try {
                                 (context as? ComponentActivity)?.let {
                                     authService.signInWithGoogle(
-                                        it
+                                        context,it
                                     )
                                 }
                                 navController.navigate("home")

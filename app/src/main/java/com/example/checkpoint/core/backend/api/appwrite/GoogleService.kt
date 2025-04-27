@@ -14,42 +14,39 @@ class GoogleService {
 
     private val TAG = "com.example.checkpoint.core.backend.api.appwrite.GoogleService"
 
-
-    suspend fun getInboxEmails(accessToken: String): List<String> {
+    suspend fun getInboxSubscriptions(accessToken: String): List<String> {
         val subscriptions = mutableListOf<String>()
-        val url = URL("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=200")
+        val url = URL("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=50")
         val connection = withContext(Dispatchers.IO) {
             url.openConnection()
         } as HttpURLConnection
+
         connection.setRequestProperty("Authorization", "Bearer $accessToken")
         connection.requestMethod = "GET"
 
         try {
             val responseCode = connection.responseCode
             Log.d(TAG, "Response code: $responseCode")
+
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream, StandardCharsets.UTF_8))
-                val response = StringBuilder()
-                var line: String?
-                while (withContext(Dispatchers.IO) {
-                        reader.readLine()
-                    }.also { line = it } != null) {
-                    response.append(line)
-                }
-                withContext(Dispatchers.IO) {
-                    reader.close()
-                }
-                Log.d(TAG, "Raw response: $response")
+                val response = reader.readText()
+                reader.close()
 
-
-                val jsonResponse = JSONObject(response.toString())
+                val jsonResponse = JSONObject(response)
                 val messages = jsonResponse.getJSONArray("messages")
                 Log.d(TAG, "Found ${messages.length()} messages")
 
                 for (i in 0 until messages.length()) {
                     val messageId = messages.getJSONObject(i).getString("id")
-                    Log.d(TAG, "Message ID: $messageId")
-                    subscriptions.add("Sub detected $messageId")
+                    Log.d(TAG, "Checking Message ID: $messageId")
+
+                    val messageDetails = getMessageDetails(messageId, accessToken)
+
+                    if (isSubscriptionEmail(messageDetails)) {
+                        Log.d(TAG, "Subscription email found: $messageId")
+                        subscriptions.add("Sub detected $messageId")
+                    }
                 }
             } else {
                 Log.e(TAG, "Failed to fetch emails: $responseCode")
@@ -60,13 +57,13 @@ class GoogleService {
             connection.disconnect()
             Log.d(TAG, "Connection closed")
         }
-        Log.d(TAG, "Final subscriptions list size: ${subscriptions.size}")
+
+        Log.d(TAG, "Total subscriptions detected: ${subscriptions.size}")
         return subscriptions
     }
 
-
     private fun getMessageDetails(messageId: String, accessToken: String): JSONObject {
-        val url = URL("https://gmail.googleapis.com/gmail/v1/users/me/messages/$messageId")
+        val url = URL("https://gmail.googleapis.com/gmail/v1/users/me/messages/$messageId?format=metadata")
         val connection = url.openConnection() as HttpURLConnection
         connection.setRequestProperty("Authorization", "Bearer $accessToken")
         connection.requestMethod = "GET"
@@ -76,36 +73,36 @@ class GoogleService {
             val responseCode = connection.responseCode
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream, StandardCharsets.UTF_8))
-                var line: String?
-                while (reader.readLine().also { line = it } != null) {
-                    response.append(line)
-                }
+                response.append(reader.readText())
+                reader.close()
             } else {
-                println("Error al obtener los detalles del mensaje: $responseCode")
+                Log.e(TAG, "Error fetching message details: $responseCode")
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "Error fetching message details", e)
         } finally {
             connection.disconnect()
         }
 
-        // Procesar la respuesta JSON
         return JSONObject(response.toString())
     }
 
-    // Método para verificar si el mensaje está relacionado con una suscripción
     private fun isSubscriptionEmail(messageDetails: JSONObject): Boolean {
-        val subject = getMessageSubject(messageDetails)
-        // Verificar si el asunto contiene palabras clave relacionadas con suscripciones
-        return subject.contains("subscription", ignoreCase = true) || subject.contains("payment", ignoreCase = true)
+        val subject = getHeaderValue(messageDetails, "Subject")
+        val from = getHeaderValue(messageDetails, "From")
+        val listUnsubscribe = getHeaderValue(messageDetails, "List-Unsubscribe")
+
+        return subject.contains("subscription", ignoreCase = true) ||
+                subject.contains("payment", ignoreCase = true) ||
+                listUnsubscribe.isNotEmpty() ||
+                from.contains("noreply", ignoreCase = true)
     }
 
-    // Método para extraer el asunto de un mensaje
-    private fun getMessageSubject(messageDetails: JSONObject): String {
+    private fun getHeaderValue(messageDetails: JSONObject, headerName: String): String {
         val headers = messageDetails.getJSONObject("payload").getJSONArray("headers")
         for (i in 0 until headers.length()) {
             val header = headers.getJSONObject(i)
-            if (header.getString("name") == "Subject") {
+            if (header.getString("name").equals(headerName, ignoreCase = true)) {
                 return header.getString("value")
             }
         }

@@ -1,5 +1,6 @@
 package com.example.checkpoint.ui.views
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Build
@@ -8,10 +9,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Slider
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -34,9 +33,10 @@ import com.example.checkpoint.ui.components.PixelArtText
 import com.example.checkpoint.ui.components.PixelArtTextField
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.checkpoint.R
-import com.example.checkpoint.application.services.serviceDataTimeCalculator
+import com.example.checkpoint.application.services.scheduleReminder
+import com.example.checkpoint.application.services.scheduleRenewal
+import com.example.checkpoint.application.services.selectDefaultImageUrl
 import com.example.checkpoint.application.services.serviceEditSubscription
-import com.example.checkpoint.application.usecases.usecaseDateTimeCalculator
 import com.example.checkpoint.application.usecases.usecaseEditSubscription
 import com.example.checkpoint.core.backend.api.appwrite.AppwriteService
 import com.example.checkpoint.core.backend.api.appwrite.AuthService
@@ -50,12 +50,16 @@ import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionRemin
 import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionRenewalDate
 import com.example.checkpoint.core.store.SubscriptionStore
 import com.example.checkpoint.ui.components.DatePickerField
+import com.example.checkpoint.ui.components.ReminderSlider
+import com.example.checkpoint.ui.components.SubscriptionFilterDropdown
 import com.example.checkpoint.ui.views.data_model.validateSubscriptionCostInput
 import com.example.checkpoint.ui.views.data_model.validateSubscriptionNameInput
-import com.example.checkpoint.ui.views.data_model.validateSubscriptionReminderInput
+import com.example.checkpoint.ui.views.data_model.validateSubscriptionRenewalDateInput
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 
+@SuppressLint("DiscouragedApi")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EditSubscription(navController: NavController) {
@@ -72,22 +76,15 @@ fun EditSubscription(navController: NavController) {
     var name by remember { mutableStateOf(subscription!!.name.name) }
     var cost by remember { mutableStateOf(subscription?.cost!!.cost.toString()) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var subscriptionCostType by remember { mutableStateOf(SubscriptionCostType.MONTHLY) }
+    var selectedType by remember { mutableStateOf(SubscriptionCostType.MONTHLY) }
     var reminderDays by remember { mutableFloatStateOf(1f) }
     var renewalDate by remember { mutableStateOf(subscription!!.renewalDate.dateTime) }
 
     var subscriptionNameError by remember { mutableStateOf<String?>(null) }
     var subscriptionCostError by remember { mutableStateOf<String?>(null) }
     var subscriptionRenewalDateError by remember { mutableStateOf<String?>(null) }
-    var subscriptionReminderDateError by remember { mutableStateOf<String?>(null) }
+    val subscriptionReminderDateError by remember { mutableStateOf<String?>(null) }
 
-    val normalizedReminderValue = remember(reminderDays, subscriptionCostType) {
-        if (subscriptionCostType == SubscriptionCostType.MONTHLY) {
-            reminderDays.coerceIn(1f..30f)
-        } else {
-            (reminderDays / 30f).coerceIn(1f..12f)
-        }
-    }
     val onImageSelected: (Uri) -> Unit = { uri ->
         imageUri = uri
     }
@@ -118,11 +115,10 @@ fun EditSubscription(navController: NavController) {
                     isError = subscriptionNameError != null,
                     errorMessage = subscriptionNameError?.let { context.getString(context.resources.getIdentifier(it, "string", context.packageName)) }
                 )
-                Spacer(modifier = Modifier.height(24.dp))
                 Column(
                     modifier = Modifier
-                        .padding(start = 56.dp, end = 56.dp)
-                        .fillMaxWidth(),
+                        .widthIn(max = 400.dp)
+                        .align(Alignment.CenterHorizontally)
                 ) {
                     PixelArtTextField(
                         context.getString(R.string.subscription_cost),
@@ -131,83 +127,89 @@ fun EditSubscription(navController: NavController) {
                             cost = it
                             val newCost = cost.toDoubleOrNull()
                             subscriptionCostError =
-                                newCost?.let { it1 -> validateSubscriptionCostInput(it1, if (subscriptionCostType == SubscriptionCostType.MONTHLY) "MONTHLY" else "ANNUAL") }
+                                newCost?.let { it1 -> validateSubscriptionCostInput(it1,
+                                    selectedType.name
+                                ) }
                         },
                         isError = subscriptionCostError != null,
                         errorMessage = subscriptionCostError?.let { context.getString(context.resources.getIdentifier(it, "string", context.packageName)) },
                         keyboardType = KeyboardType.Number
                     )
-                    PixelArtButton(
-                        text = if (subscriptionCostType == SubscriptionCostType.MONTHLY) context.getString(R.string.monthly) else context.getString(R.string.annual),
-                        onClick = {
-                            if (subscriptionCostType == SubscriptionCostType.ANNUAL && reminderDays > 0) {
-                                reminderDays = 30f
-                            }
-                            subscriptionCostType = if (subscriptionCostType == SubscriptionCostType.MONTHLY)
-                                SubscriptionCostType.ANNUAL
-                            else
-                                SubscriptionCostType.MONTHLY
+                    SubscriptionFilterDropdown(
+                        selectedType = selectedType,
+                        onTypeSelected = { type -> selectedType = type!! },
+                        false
+                    )
+
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                if(selectedType != SubscriptionCostType.DAILY) {
+                    DatePickerField { date ->
+                        renewalDate = date
+                        subscriptionRenewalDateError = validateSubscriptionRenewalDateInput(date)
+                    }
+                    if (subscriptionRenewalDateError != null) {
+                        PixelArtText(
+                            context.getString(context.resources.getIdentifier(subscriptionRenewalDateError!!, "string", context.packageName)),
+                            color = Color.Red
+                        )
+                    }
+                }
+                if (selectedType != SubscriptionCostType.DAILY) {
+                    ReminderSlider(
+                        isRenewalDateSet = true,
+                        isSubscriptionTypeSet = name.isNotEmpty() && cost.isNotEmpty(),
+                        reminderValue = reminderDays,
+                        onValueChange = { newValue ->
+                            reminderDays = newValue
                         },
-                        modifier = Modifier.align(Alignment.End).padding(top = 16.dp)
+                        renewalDate.toLocalDate()
                     )
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-                DatePickerField { date ->
-                    renewalDate = date
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-                PixelArtText(if (subscriptionCostType == SubscriptionCostType.MONTHLY)  context.getString(R.string.reminder_days, normalizedReminderValue.toInt()) else context.getString(R.string.reminder_months, normalizedReminderValue.toInt()))
-                Slider(
-                    value = normalizedReminderValue,
-                    onValueChange = { newValue ->
-                        val proposedReminderDays = if (subscriptionCostType == SubscriptionCostType.MONTHLY) {
-                            newValue.coerceIn(1f..30f)
-                        } else {
-                            (newValue * 30f).coerceIn(1f..360f)
-                        }
-                        if (renewalDate != null) {
-                            val reminderDateCandidate = renewalDate!!.toLocalDate()
-                                .minusDays(proposedReminderDays.toLong())
-                                .atStartOfDay()
-
-                            subscriptionReminderDateError = validateSubscriptionReminderInput(reminderDateCandidate)
-                        }
-
-                        reminderDays = proposedReminderDays
-                    },
-                    valueRange = if (subscriptionCostType == SubscriptionCostType.MONTHLY) 1f..30f else 1f..12f,
-                    steps = if (subscriptionCostType == SubscriptionCostType.MONTHLY) 29 else 11,
-                    modifier = Modifier.padding(start = 56.dp, end = 56.dp)
-                )
                 PixelArtButton(
                     text = context.getString(R.string.save),
                     onClick = {
                         coroutineScope.launch {
                             val costValue = cost.toDoubleOrNull() ?: return@launch
-                            val type = subscriptionCostType
-                            val dataTimeCalculator: usecaseDateTimeCalculator = serviceDataTimeCalculator()
-                            val dateTime = dataTimeCalculator.invoke(type, normalizedReminderValue)
-                            val localDateTime = dateTime.atStartOfDay()
+                            val type = selectedType
+                            val imageUrl = imageUri?.let { uri ->
+                                appwriteService.uploadImageToAppwrite(context, uri)
+                            } ?: selectDefaultImageUrl(name)
 
-                            val imageUrl = imageUri?.let { appwriteService.uploadImageToAppwrite(context, it) } ?: subscription.image.image
+                            if (selectedType == SubscriptionCostType.DAILY) {
+                                renewalDate = LocalDateTime.now().plusDays(1)
+                            }
+
+                            val reminderDate = renewalDate.let {
+                                when (selectedType) {
+                                    SubscriptionCostType.DAILY -> it.toLocalDate()
+                                    else -> it.toLocalDate().minusDays(reminderDays.toLong())
+                                }
+                            }
+
+
 
                             val userId = authService.getUserIdActual().toString().substringAfter("(").substringBefore(")")
                             val newSubscription = Subscription(
                                 SubscriptionName(name),
                                 SubscriptionImage(imageUrl),
                                 SubscriptionCost(costValue, type),
-                                SubscriptionReminder(localDateTime),
+                                SubscriptionReminder(reminderDate!!.atStartOfDay()),
                                 SubscriptionRenewalDate(renewalDate),
                                 subscription.ID
                             )
                             editSubscriptionUseCase.invoke(newSubscription, userId)
                             SubscriptionStore.addOrUpdateSubscription(newSubscription)
+                            scheduleRenewal(context, newSubscription)
+                            scheduleReminder(context, newSubscription)
                             navController.navigate("home")
                         }
                     },
                     fontSize = 24.sp,
                     errorMessages = listOf(subscriptionNameError.orEmpty(), subscriptionCostError.orEmpty(), subscriptionRenewalDateError.orEmpty(), subscriptionReminderDateError.orEmpty()),
-                    requiredFields = listOf(imageUri.toString(), name, cost, reminderDays.toString(), renewalDate?.toString() ?: "")
+                    requiredFields = listOf(imageUri.toString(), name, cost, reminderDays.toString(),
+                        renewalDate.toString()
+                    )
                 )
                 Spacer(modifier = Modifier.height(32.dp))
             }
