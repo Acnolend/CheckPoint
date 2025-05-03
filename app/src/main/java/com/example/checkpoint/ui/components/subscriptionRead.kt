@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.checkpoint.R
 import com.example.checkpoint.core.backend.domain.enumerate.SubscriptionCostType
+import com.example.checkpoint.core.store.CurrencyStore
 
 @Composable
 fun SubscriptionRead(
@@ -81,7 +82,7 @@ fun SubscriptionRead(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    PixelArtText(cost + "€", color = Color(0xFF4CC9F0))
+                    PixelArtText(CurrencyStore.formatPrice(cost), color = Color(0xFF4CC9F0))
                     Spacer(modifier = Modifier.width(8.dp))
                     PixelArtText(context.getString(stringResId),color = Color(0xFF4CC9F0)
                     )

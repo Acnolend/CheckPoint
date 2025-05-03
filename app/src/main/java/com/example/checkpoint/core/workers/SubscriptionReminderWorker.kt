@@ -25,6 +25,7 @@ import java.time.temporal.ChronoUnit
 class SubscriptionReminderWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
     private val appwriteService = AppwriteService(context)
     private val subscriptionRepository = SubscriptionRepository(appwriteService)
+    private val context: Context = context
 
     @OptIn(DelicateCoroutinesApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
@@ -86,7 +87,7 @@ class SubscriptionReminderWorker(context: Context, workerParams: WorkerParameter
         val notificationText = "$daysRemaining days until your subscription renews!"
         val notification = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.icon_info)
-            .setContentTitle("Subscription Reminder")
+            .setContentTitle(subscription.name.name)
             .setContentText(notificationText)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)

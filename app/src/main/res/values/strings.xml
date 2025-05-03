@@ -9,7 +9,7 @@
     <string name="register">REGISTER</string>
 
     <!-- HOME -->
-    <string name="total_spent">TOTAL SPENT THIS MONTH</string>
+    <string name="next_expense_this_month">NEXT EXPENSE THIS MONTH</string>
     <string name="next_renewal">CLOSER RENEWAL</string>
     <string name="active_subs">ACTIVE SUBSCRIPTIONS</string>
     <string name="no_active_subs">NO SUBSCRIPTIONS!</string>
@@ -24,6 +24,7 @@
     <!-- SETTINGS -->
     <string name="settings">SETTINGS</string>
     <string name="lenguage">LENGUAGE</string>
+    <string name="currency">CURRENCY</string>
     <string name="spanish">Spanish</string>
     <string name="english">English</string>
     <string name="swedish">Swedish</string>
@@ -53,11 +54,31 @@
     <string name="summary">SUMMARY</string>
     <string name="history">HISTORY</string>
     <string name="list">LIST</string>
-    <string name="import_">IMPORT</string>
+    <string name="suggestions">SUGGESTIONS</string>
 
     <!-- LIST SUBSCRIPTION -->
-    <string name="search">Search by name...</string>
+    <string name="search">Search by name…</string>
     <string name="all">ALL</string>
+
+    <!-- IMPORT SUBSCRIPTION -->
+    <string name="detected_subscriptions">>DETECTED SUBSCRIPTIONS</string>
+    <string name="import_selected">IMPORT SELECTED</string>
+    <string name="no_subscriptions_detected">NO SUBSCRIPTIONS DETECTED</string>
+
+    <!-- LOADING SCREEN -->
+    <string name="loading">LOADING…</string>
+
+    <!-- POPUPS -->
+    <string name="select_option">Select an option</string>
+    <string name="create_subscription_popup">Create Subscription</string>
+    <string name="import_subscription">Import Subscription from Gmail</string>
+    <string name="confirm_delete_title">Confirm Deletion</string>
+    <string name="confirm_delete_message">Are you sure you want to delete all your subscriptions?</string>
+    <string name="delete_subscription_title">Delete Subscription</string>
+    <string name="delete_subscription_message">Are you sure you want to delete the subscription: %1$s?</string>
+    <string name="accept">ACCEPT</string>
+    <string name="cancel">CANCEL</string>
+
 
     <!-- ERRORS -->
     <!-- SUBSCRIPTION COST -->
@@ -94,9 +115,10 @@
     <string name="user_email_error_empty">Email cannot be empty!</string>
     <string name="user_email_error_wrongFormat">Please enter a valid email address!</string>
 
+    <!-- TRYING ENTER INTO IMPORT WITHOUT LOGIN GOOGLE -->
+    <string name="toast_google_login_required">You need to be logged in with Google to use this feature</string>
+
     <!-- NOTIFICATIONS -->
-    <string name="subscription_renewal_channel">Subscription Renewal</string>
-    <string name="subscription_renewal_channel_description">Notifications for subscription renewal reminders</string>
-    <string name="subscription_renewal_notification_title">Subscription Renewal</string>
-    <string name="subscription_renewal_notification_text">Your subscription is due for renewal!</string>
+    <string name="subscription_renewal_notification_text">Your subscription has been renewed!</string>
+    <string name="subscription_reminder_notification_text">"%1$d days until your subscription renews!"</string>
 </resources>

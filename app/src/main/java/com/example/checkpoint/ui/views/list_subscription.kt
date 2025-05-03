@@ -13,12 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,9 +34,11 @@ import com.example.checkpoint.application.services.serviceDeleteSubscription
 import com.example.checkpoint.application.usecases.usecaseDeleteSubscription
 import com.example.checkpoint.core.backend.api.appwrite.AppwriteService
 import com.example.checkpoint.core.backend.api.appwrite.SubscriptionRepository
+import com.example.checkpoint.core.backend.domain.entities.Subscription
 import com.example.checkpoint.core.backend.domain.enumerate.SubscriptionCostType
 import com.example.checkpoint.core.store.SubscriptionStore
 import com.example.checkpoint.ui.components.OwnScaffold
+import com.example.checkpoint.ui.components.PixelArtPopup
 import com.example.checkpoint.ui.components.PixelArtText
 import com.example.checkpoint.ui.components.PixelArtTextField
 import com.example.checkpoint.ui.components.SubscriptionFilterDropdown
@@ -48,6 +51,7 @@ fun ListSubscription(navController: NavController) {
 
     val searchText = remember { mutableStateOf("") }
     val selectedFilter = remember { mutableStateOf<SubscriptionCostType?>(null) }
+    var showPopup by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val context: Context = LocalContext.current
     val appwriteService = AppwriteService(context)
@@ -64,6 +68,8 @@ fun ListSubscription(navController: NavController) {
 
         matchesSearch && matchesFilter
     }
+
+    var subscriptionToDelete by remember { mutableStateOf<Subscription?>(null) }
 
     OwnScaffold(navController,
         content = { modifier ->
@@ -121,18 +127,38 @@ fun ListSubscription(navController: NavController) {
                             navController.navigate("edit_subscription")
                         },
                         onDeleteClick = {
-                            coroutineScope.launch {
-                                SubscriptionStore.currentSubscription = subscription
-                                WorkManager.getInstance(context).cancelAllWorkByTag("${subscription.ID}_renewal")
-                                WorkManager.getInstance(context).cancelAllWorkByTag("${subscription.ID}_reminder")
-                                deleteSubscriptionUseCase.invoke(subscription)
-                                SubscriptionStore.deleteSubscription(subscription.ID)
-                            }
+                            subscriptionToDelete = subscription
+                            showPopup = true
                         }
                     )
                 }
-
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     )
+
+    if (showPopup && subscriptionToDelete != null) {
+        PixelArtPopup(
+            onDismissRequest = {
+                showPopup = false
+                subscriptionToDelete = null
+            },
+            title = context.getString(R.string.delete_subscription_title),
+            message = context.getString(R.string.delete_subscription_message, subscriptionToDelete?.name?.name),
+            onConfirm = {
+                coroutineScope.launch {
+                    subscriptionToDelete?.let { sub ->
+                        SubscriptionStore.currentSubscription = sub
+                        WorkManager.getInstance(context).cancelAllWorkByTag("${sub.ID}_renewal")
+                        WorkManager.getInstance(context).cancelAllWorkByTag("${sub.ID}_reminder")
+                        deleteSubscriptionUseCase.invoke(sub)
+                        SubscriptionStore.deleteSubscription(sub.ID)
+                    }
+                    showPopup = false
+                    subscriptionToDelete = null
+                }
+            }
+        )
+    }
+
 }

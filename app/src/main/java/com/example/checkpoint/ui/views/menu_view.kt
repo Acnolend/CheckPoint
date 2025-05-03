@@ -35,7 +35,8 @@ fun MenuView(navController: NavController) {
                 Spacer(modifier = Modifier.height(96.dp))
                 PixelArtButton(context.getString(R.string.list), fontSize = 40.sp,  onClick = { navController.navigate("list_subscription") })
                 Spacer(modifier = Modifier.height(96.dp))
-                PixelArtButton(context.getString(R.string.import_), fontSize = 40.sp,  onClick = { navController.navigate("import_subscriptions") })
+                PixelArtButton(context.getString(R.string.suggestions), fontSize = 40.sp,  onClick = { navController.navigate("home") })
+                Spacer(modifier = Modifier.height(64.dp))
             }
         }
     )

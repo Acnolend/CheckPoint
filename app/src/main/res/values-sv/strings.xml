@@ -9,7 +9,7 @@
     <string name="register">REGISTRERA</string>
 
     <!-- HOME -->
-    <string name="total_spent">TOTALT UTGIVET DEN HÄR MÅNADEN</string>
+    <string name="next_expense_this_month">NÄSTA UTGIFT DENNA MÅNAD</string>
     <string name="next_renewal">NÄRMASTE FÖRNYELSE</string>
     <string name="active_subs">AKTIVA ABONNEMANG</string>
     <string name="no_active_subs">INGA ABONNEMANG!</string>
@@ -24,6 +24,7 @@
     <!-- SETTINGS -->
     <string name="settings">INSTÄLLNINGAR</string>
     <string name="lenguage">SPRÅK</string>
+    <string name="currency">VALUTA</string>
     <string name="spanish">Spanska</string>
     <string name="english">Engelska</string>
     <string name="swedish">Svenska</string>
@@ -53,11 +54,31 @@
     <string name="summary">SAMMANFATTNING</string>
     <string name="history">HISTORIK</string>
     <string name="list">LISTA</string>
-    <string name="import_">IMPORTERA</string>
+    <string name="suggestions">FÖRSLAG</string>
 
     <!-- LIST SUBSCRIPTION -->
-    <string name="search">Sök på namn...</string>
+    <string name="search">Sök på namn…</string>
     <string name="all">ALLA</string>
+
+    <!-- IMPORT SUBSCRIPTION -->
+    <string name="detected_subscriptions">UPPTÄCKTA PRENUMERATIONER</string>
+    <string name="import_selected">IMPORTERA VALDA</string>
+    <string name="no_subscriptions_detected">INGA PRENUMERATIONER UPPTÄCKTA</string>
+
+    <!-- LOADING SCREEN -->
+    <string name="loading">LADDAR…</string>
+
+    <!-- POPUPS -->
+    <string name="select_option">Välj ett alternativ</string>
+    <string name="create_subscription_popup">Skapa Prenumeration</string>
+    <string name="import_subscription">Importera prenumerationer från Gmail</string>
+    <string name="confirm_delete_title">Bekräfta borttagning</string>
+    <string name="confirm_delete_message">Är du säker på att du vill ta bort alla dina prenumerationer?</string>
+    <string name="delete_subscription_title">Ta bort prenumeration</string>
+    <string name="delete_subscription_message">Är du säker på att du vill ta bort prenumerationen: %1$s?</string>
+    <string name="accept">ACCEPTERA</string>
+    <string name="cancel">AVBRYT</string>
+
 
     <!-- ERRORS -->
     <!-- SUBSCRIPTION COST -->
@@ -94,9 +115,10 @@
     <string name="user_email_error_empty">E-post får inte vara tomt!</string>
     <string name="user_email_error_wrongFormat">Ange en giltig e-postadress!</string>
 
+    <!-- TRYING ENTER INTO IMPORT WITHOUT LOGIN GOOGLE -->
+    <string name="toast_google_login_required">Du måste vara inloggad med Google för att använda den här funktionen</string>
+
     <!-- NOTIFICATIONS -->
-    <string name="subscription_renewal_channel">Prenumerationsförnyelse</string>
-    <string name="subscription_renewal_channel_description">Påminnelser om prenumerationsförnyelse</string>
-    <string name="subscription_renewal_notification_title">Prenumerationsförnyelse</string>
-    <string name="subscription_renewal_notification_text">Din prenumeration är på väg att förnyas!</string>
+    <string name="subscription_renewal_notification_text">Din prenumeration har förnyats!</string>
+    <string name="subscription_reminder_notification_text">"%1$d dagar tills din prenumeration förnyas!"</string>
 </resources>

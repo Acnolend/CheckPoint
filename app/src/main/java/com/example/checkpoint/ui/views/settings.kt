@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,7 +21,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.checkpoint.R
 import com.example.checkpoint.core.backend.api.appwrite.AuthService
+import com.example.checkpoint.core.store.Currency
+import com.example.checkpoint.core.store.CurrencyStore
 import com.example.checkpoint.core.store.LanguageStore
+import com.example.checkpoint.ui.components.CurrencySelector
 import com.example.checkpoint.ui.components.LanguageSelector
 import com.example.checkpoint.ui.components.OwnScaffold
 import com.example.checkpoint.ui.components.PixelArtButton
@@ -35,6 +39,7 @@ fun Settings(navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
     val prefs = context.getSharedPreferences("language_preferences", Context.MODE_PRIVATE)
     var currentLang by remember { mutableStateOf(prefs.getString("language", Locale.getDefault().language) ?: "es") }
+    val selectedCurrency by CurrencyStore.selectedCurrency.collectAsState()
 
     OwnScaffold(navController,
         content = { modifier ->
@@ -52,6 +57,12 @@ fun Settings(navController: NavController) {
                     LanguageStore.setLanguage(context, selectedLanguage)
                     currentLang = selectedLanguage
                 }
+                Spacer(modifier = Modifier.height(32.dp))
+                PixelArtText(context.getString(R.string.currency), fontSize = 32.sp)
+                Spacer(modifier = Modifier.height(32.dp))
+                CurrencySelector(currentCurrency = selectedCurrency) { selectedCurrency ->
+                    CurrencyStore.setCurrency(selectedCurrency)
+                }
                 Spacer(modifier = Modifier.height(48.dp))
                 PixelArtText(context.getString(R.string.light_dark), fontSize = 32.sp)
                 Spacer(modifier = Modifier.height(48.dp))
@@ -65,6 +76,7 @@ fun Settings(navController: NavController) {
                     },
                     fontSize = 24.sp
                 )
+                Spacer(modifier = Modifier.height(48.dp))
             }
         }
     )

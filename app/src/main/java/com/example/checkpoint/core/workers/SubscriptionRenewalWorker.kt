@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 class SubscriptionRenewalWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
     private val appwriteService = AppwriteService(context)
     private val subscriptionRepository = SubscriptionRepository(appwriteService)
+    private val context: Context = context
 
     @OptIn(DelicateCoroutinesApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
@@ -38,7 +39,7 @@ class SubscriptionRenewalWorker(context: Context, workerParams: WorkerParameters
             .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
             .create()
         val subscription = gson.fromJson(subscriptionJson, Subscription::class.java)
-        sendNotification(subscription)
+        sendNotification(subscription, context)
         GlobalScope.launch {
             val updatedRenewalDate = calculateNextRenewalDate(subscription)
             subscriptionRepository.updateSubscriptionRenewalDate(subscription.ID, updatedRenewalDate)
@@ -62,7 +63,7 @@ class SubscriptionRenewalWorker(context: Context, workerParams: WorkerParameters
         }
     }
 
-    private fun sendNotification(subscription: Subscription) {
+    private fun sendNotification(subscription: Subscription, context: Context) {
         val channelId = "subscription_renewal_channel"
         val notificationId = subscription.ID.hashCode()
 
@@ -80,8 +81,8 @@ class SubscriptionRenewalWorker(context: Context, workerParams: WorkerParameters
 
         val notification = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.icon_money)
-            .setContentTitle("Subscription Renewal")
-            .setContentText("Your subscription is due for renewal!")
+            .setContentTitle(subscription.name.name)
+            .setContentText(context.getString(R.string.subscription_renewal_notification_text))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()

@@ -70,7 +70,7 @@ class SubscriptionRepository(private val appwriteService: AppwriteService) {
             val name = data["name"] as? String ?: ""
             val image = data["image"] as? String ?: ""
             val cost = when (val costValue = data["cost"]) {
-                is Long -> costValue.toDouble()
+                is Number -> costValue.toDouble()
                 else -> 0.0
             }
             val typecost = data["typecost"] as? String ?: ""

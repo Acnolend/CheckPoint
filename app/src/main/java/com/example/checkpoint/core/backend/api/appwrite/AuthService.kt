@@ -1,5 +1,6 @@
 package com.example.checkpoint.core.backend.api.appwrite
 import android.content.Context
+import android.os.Build
 import io.appwrite.Client
 import io.appwrite.Query
 import io.appwrite.exceptions.AppwriteException
@@ -10,7 +11,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import io.appwrite.enums.OAuthProvider
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
+import androidx.work.WorkManager
 import com.example.checkpoint.application.services.isDefaultImageUrl
+import java.time.Instant
 
 class AuthService(context: Context) {
     private val client = Client(context)
@@ -28,6 +32,18 @@ class AuthService(context: Context) {
                 account.get()
             }
             true
+        } catch (e: AppwriteException) {
+            false
+        }
+    }
+
+    suspend fun isUserLoggedInWithGoogle(): Boolean {
+        return try {
+            val session = withContext(Dispatchers.IO) {
+                account.getSession("current")
+            }
+
+            session.provider == "google"
         } catch (e: AppwriteException) {
             false
         }
@@ -140,7 +156,7 @@ class AuthService(context: Context) {
         }
     }
 
-    suspend fun deleteUserAndSubscriptions(userId: String): Result<Boolean> {
+    suspend fun deleteUserAndSubscriptions(userId: String, context: Context): Result<Boolean> {
         return try {
             val query = listOf(Query.equal("userId", userId))
             val queryStrings = query.map { it }
@@ -163,6 +179,8 @@ class AuthService(context: Context) {
                     documentId = document.id
                 )
             }
+            val workManager = WorkManager.getInstance(context)
+            workManager.cancelAllWork()
             Result.success(true)
         } catch (e: AppwriteException) {
             println("❌ Error al eliminar usuario o suscripciones: ${e.message}")
@@ -194,6 +212,7 @@ class AuthService(context: Context) {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun signInWithGoogle(context: Context, activity: ComponentActivity) {
         account.createOAuth2Session(
             provider = OAuthProvider.GOOGLE,
@@ -205,18 +224,50 @@ class AuthService(context: Context) {
         saveToken(context)
     }
 
-    fun getToken(context: Context): String? {
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun getValidAccessToken(context: Context): String? {
         val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("auth_token", null)
+        val accessToken = sharedPreferences.getString("auth_token", null)
+        val expiryTime = sharedPreferences.getLong("auth_token_expiry", 0)
+        if (accessToken == null || System.currentTimeMillis() >= expiryTime) {
+            println("Token expirado o nulo. Refrescando...")
+            return refreshAccessToken(context)
+        }
+        return accessToken
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun refreshAccessToken(context: Context): String? {
+        return try {
+            val session = account.updateSession("current")
+            val newAccessToken = session.providerAccessToken
+            val expiryMillis = Instant.parse(session.expire).toEpochMilli()
+            val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+
+            with(sharedPreferences.edit()) {
+                putString("auth_token", newAccessToken)
+                putLong("auth_token_expiry", expiryMillis)
+                apply()
+            }
+            newAccessToken
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend private fun saveToken(context: Context) {
         val session = account.getSession("current")
         val googleToken = session.providerAccessToken
+        val expiryTimeString = session.expire
+        val expiryMillis = Instant.parse(expiryTimeString).toEpochMilli()
+
         val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putString("auth_token", googleToken)
-        editor.apply()
+        with(sharedPreferences.edit()) {
+            putString("auth_token", googleToken)
+            putLong("auth_token_expiry", expiryMillis)
+            apply()
+        }
     }
 
     private fun generateRandomId(length: Int = 36): String {

@@ -9,7 +9,7 @@
     <string name="register">REGISTRARSE</string>
 
     <!-- HOME -->
-    <string name="total_spent">TOTAL GASTADO ESTE MES</string>
+    <string name="next_expense_this_month">PRÓXIMO GASTO ESTE MES</string>
     <string name="next_renewal">RENOVACIÓN MAS CERCANA</string>
     <string name="active_subs">SUSCRIPCIONES ACTIVAS</string>
     <string name="no_active_subs">¡NO HAY SUBSCRIPCIONES!</string>
@@ -24,6 +24,7 @@
     <!-- SETTINGS -->
     <string name="settings">AJUSTES</string>
     <string name="lenguage">IDIOMA</string>
+    <string name="currency">DIVISA</string>
     <string name="spanish">Español</string>
     <string name="english">Inglés</string>
     <string name="swedish">Sueco</string>
@@ -53,11 +54,31 @@
     <string name="summary">SUMARIO</string>
     <string name="history">HISTORIAL</string>
     <string name="list">LISTAR</string>
-    <string name="import_">IMPORTAR</string>
+    <string name="suggestions">SUGERENCIAS</string>
 
     <!-- LIST SUBSCRIPTION -->
-    <string name="search">Buscar por nombre...</string>
+    <string name="search">Buscar por nombre…</string>
     <string name="all">TODAS</string>
+
+    <!-- IMPORT SUBSCRIPTION -->
+    <string name="detected_subscriptions">SUSCRIPCIONES DETECTADAS</string>
+    <string name="import_selected">IMPORTAR SELECCIONADAS</string>
+    <string name="no_subscriptions_detected">NO SE DETECTÓ NINGUNA SUSCRIPCIÓN</string>
+
+    <!-- LOADING SCREEN -->
+    <string name="loading">CARGANDO…</string>
+
+    <!-- POPUPS -->
+    <string name="select_option">Selecciona una opción</string>
+    <string name="create_subscription_popup">Crear Suscripción</string>
+    <string name="import_subscription">Importar Suscripciones de Gmail</string>
+    <string name="confirm_delete_title">Confirmar eliminación</string>
+    <string name="confirm_delete_message">¿Estás seguro de que quieres eliminar todas tus suscripciones?</string>
+    <string name="delete_subscription_title">Eliminar Suscripción</string>
+    <string name="delete_subscription_message">¿Seguro que quieres eliminar la suscripción: %1$s?</string>
+    <string name="accept">ACEPTAR</string>
+    <string name="cancel">CANCELAR</string>
+
 
     <!-- ERRORS -->
     <!-- SUBSCRIPTION COST -->
@@ -94,9 +115,10 @@
     <string name="user_email_error_empty">¡El correo no puede estar vacío!</string>
     <string name="user_email_error_wrongFormat">Por favor, ingresa una dirección de correo válida.</string>
 
+    <!-- TRYING ENTER INTO IMPORT WITHOUT LOGIN GOOGLE -->
+    <string name="toast_google_login_required">Necesitas estar logeado con Google para usar esta función</string>
+
     <!-- NOTIFICATIONS -->
-    <string name="subscription_renewal_channel">Renovación de suscripción</string>
-    <string name="subscription_renewal_channel_description">Notificaciones para recordatorios de renovación de suscripción</string>
-    <string name="subscription_renewal_notification_title">Renovación de suscripción</string>
-    <string name="subscription_renewal_notification_text">¡Tu suscripción está a punto de renovarse!</string>
+    <string name="subscription_renewal_notification_text">¡Tu suscripción se ha renovado!</string>
+    <string name="subscription_reminder_notification_text">"%1$d días hasta que se renueve tu suscripción!"</string>
 </resources>

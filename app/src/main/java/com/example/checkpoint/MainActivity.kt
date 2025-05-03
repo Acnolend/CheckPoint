@@ -26,7 +26,9 @@ import com.example.checkpoint.ui.views.ListSubscription
 import com.example.checkpoint.ui.views.Login
 import com.example.checkpoint.ui.views.MenuView
 import com.example.checkpoint.ui.views.Register
+import com.example.checkpoint.ui.views.RetroLoadingScreen
 import com.example.checkpoint.ui.views.Settings
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -35,15 +37,25 @@ class MainActivity : ComponentActivity() {
         setContent {
             CheckPointTheme {
                 val navController = rememberNavController()
-                var isAuthenticated by remember { mutableStateOf(false) }
+                var isAuthenticated by remember { mutableStateOf<Boolean?>(null) }
                 val authService = AuthService(this)
+                var progress by remember { mutableStateOf(0f) }
 
                 LaunchedEffect(Unit) {
-                    val isLoggedIn = authService.isUserLoggedIn()
-                    isAuthenticated = isLoggedIn
+                    for (i in 1..10) {
+                        delay(100)
+                        progress = i * 0.1f
+                        val isLoggedIn = authService.isUserLoggedIn()
+                        isAuthenticated = isLoggedIn
+                    }
                 }
 
-                NavigationGraph(navController = navController, isAuthenticated = isAuthenticated)
+                if (isAuthenticated == null) {
+                    RetroLoadingScreen(progress = progress)
+                } else {
+                    NavigationGraph(navController = navController, isAuthenticated = isAuthenticated!!)
+                }
+
             }
         }
     }

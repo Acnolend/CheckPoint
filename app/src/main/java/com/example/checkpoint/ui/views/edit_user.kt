@@ -33,6 +33,7 @@ import com.example.checkpoint.ui.components.PixelArtButton
 import com.example.checkpoint.ui.components.PixelArtTextField
 import com.example.checkpoint.R
 import com.example.checkpoint.core.backend.api.appwrite.AuthService
+import com.example.checkpoint.ui.components.PixelArtPopup
 import com.example.checkpoint.ui.components.PixelArtText
 import com.example.checkpoint.ui.views.data_model.validateUserEmailInput
 import com.example.checkpoint.ui.views.data_model.validateUserNameInput
@@ -57,6 +58,8 @@ fun EditUser(navController: NavController) {
     var userCurrentPasswordError by remember { mutableStateOf<String?>(null) }
     var userNewPasswordError by remember { mutableStateOf<String?>(null) }
     var userEmailError by remember { mutableStateOf<String?>(null) }
+
+    var showPopup by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         val resultName = authService.getUserName()
@@ -153,9 +156,7 @@ fun EditUser(navController: NavController) {
                 PixelArtButton(
                     text = context.getString(R.string.delete_data),
                     onClick = {
-                        coroutineScope.launch {
-                            authService.deleteUserAndSubscriptions(authService.getUserIdActual().toString().substringAfter("(").substringBefore(")"))
-                        }
+                        showPopup = true
                     },
                     fontSize = 24.sp,
                 )
@@ -164,4 +165,20 @@ fun EditUser(navController: NavController) {
             }
         }
     )
+
+    if (showPopup) {
+        PixelArtPopup(
+            onDismissRequest = { showPopup = false },
+            title = context.getString(R.string.confirm_delete_title),
+            message = context.getString(R.string.confirm_delete_message),
+            onConfirm = {
+                coroutineScope.launch {
+                    val userId = authService.getUserIdActual().toString().substringAfter("(").substringBefore(")")
+                    authService.deleteUserAndSubscriptions(userId, context)
+                    showPopup = false
+                    navController.navigate("home")
+                }
+            }
+        )
+    }
 }

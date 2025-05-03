@@ -144,10 +144,13 @@ fun EditSubscription(navController: NavController) {
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 if(selectedType != SubscriptionCostType.DAILY) {
-                    DatePickerField { date ->
-                        renewalDate = date
-                        subscriptionRenewalDateError = validateSubscriptionRenewalDateInput(date)
-                    }
+                    DatePickerField(
+                        selectedDate = renewalDate,
+                        onDateSelected = { date ->
+                            renewalDate = date
+                            subscriptionRenewalDateError = validateSubscriptionRenewalDateInput(date)
+                        }
+                    )
                     if (subscriptionRenewalDateError != null) {
                         PixelArtText(
                             context.getString(context.resources.getIdentifier(subscriptionRenewalDateError!!, "string", context.packageName)),

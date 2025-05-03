@@ -17,20 +17,21 @@ import java.util.Calendar
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DatePickerField(onDateSelected: (LocalDateTime) -> Unit) {
+fun DatePickerField(selectedDate: LocalDateTime?, onDateSelected: (LocalDateTime) -> Unit) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
     val year = calendar.get(Calendar.YEAR)
     val month = calendar.get(Calendar.MONTH)
     val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-    var selectedDate by remember { mutableStateOf<LocalDateTime?>(null) }
-
-    val datePickerDialog = DatePickerDialog(context, { _: DatePicker, selectedYear: Int, selectedMonth: Int, selectedDayOfMonth: Int ->
-        val newDate = LocalDateTime.of(selectedYear, selectedMonth + 1, selectedDayOfMonth, 0, 0)
-        selectedDate = newDate
-        onDateSelected(newDate)
-    }, year, month, day)
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _: DatePicker, selectedYear: Int, selectedMonth: Int, selectedDayOfMonth: Int ->
+            val newDate = LocalDateTime.of(selectedYear, selectedMonth + 1, selectedDayOfMonth, 0, 0)
+            onDateSelected(newDate)
+        },
+        year, month, day
+    )
 
     val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
