@@ -138,7 +138,15 @@ fun CreateSubscription(navController: NavController) {
                         cost,
                         onTextChange = {
                             cost = it
-                            val newCost = cost.toDoubleOrNull()
+                            var sanitizedText = cost.replace(",", ".")
+                            if (sanitizedText.contains(".")) {
+                                val parts = sanitizedText.split(".")
+                                if (parts.size > 1) {
+                                    sanitizedText = parts[0] + "." + parts[1].take(2)
+                                }
+                            }
+                            val newCost = sanitizedText.toDoubleOrNull()
+                            cost = newCost?.toString() ?: ""
                             subscriptionCostError =
                                 newCost?.let { it1 -> validateSubscriptionCostInput(it1, selectedType?.name ?: "MONTHLY") }
                         },

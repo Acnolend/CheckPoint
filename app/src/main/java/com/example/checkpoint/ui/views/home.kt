@@ -59,7 +59,7 @@ fun Home(navController: NavController) {
     val readSubscriptionUseCase: usecaseReadSubscription = serviceReadSubscription(subscriptionRepository)
     val subscriptions by SubscriptionStore.subscriptions.collectAsState()
     var predictedTotal by remember { mutableDoubleStateOf(0.0) }
-    var nextRenewalDate by remember { mutableStateOf<Pair<String, String>?>(null) }
+    var nextRenewalDate by remember { mutableStateOf<Triple<String, String, String>?>(null) }
 
 
     LaunchedEffect(Unit) {
@@ -95,22 +95,22 @@ fun Home(navController: NavController) {
                 )
                 Spacer(modifier = Modifier.height(48.dp))
                 if (nextRenewalDate != null) {
-                    val (name, date) = nextRenewalDate!!
+                    val (name, date, cost) = nextRenewalDate!!
                     Box(
                         Modifier
                             .padding(16.dp)
                             .fillMaxWidth()
-                            .height(80.dp)
+
                             .clip(RoundedCornerShape(16.dp))
-                            .background(Color.White)
+                            .background(Color(0xFF2D006C))
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.icon_alert_nextrenewal),
                             contentDescription = "Subscription Icon",
                             modifier = Modifier
-                                .size(80.dp)
+                                .size(96.dp)
                                 .align(Alignment.CenterStart)
-                                .padding(start = 4.dp)
+                                .padding(start = 16.dp)
                         )
                         Column(
                             verticalArrangement = Arrangement.Center,
@@ -123,6 +123,13 @@ fun Home(navController: NavController) {
                             ) {
                                 PixelArtText(
                                     text = name,
+                                    fontSize = 22.sp,
+                                    color = Color(0xFFE64CF0),
+                                    modifier = Modifier.padding(end = 8.dp)
+                                )
+
+                                PixelArtText(
+                                    text = CurrencyStore.formatPrice(cost),
                                     fontSize = 22.sp,
                                     color = Color(0xFFE64CF0),
                                     modifier = Modifier.padding(end = 8.dp)

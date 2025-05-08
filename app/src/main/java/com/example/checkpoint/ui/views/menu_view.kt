@@ -29,13 +29,13 @@ fun MenuView(navController: NavController) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(64.dp))
-                PixelArtButton(context.getString(R.string.summary), fontSize = 40.sp, onClick = { navController.navigate("home") })
+                PixelArtButton(context.getString(R.string.summary), fontSize = 40.sp, onClick = { navController.navigate("summary") })
                 Spacer(modifier = Modifier.height(96.dp))
                 PixelArtButton(context.getString(R.string.history), fontSize = 40.sp,  onClick = { navController.navigate("home") })
                 Spacer(modifier = Modifier.height(96.dp))
                 PixelArtButton(context.getString(R.string.list), fontSize = 40.sp,  onClick = { navController.navigate("list_subscription") })
                 Spacer(modifier = Modifier.height(96.dp))
-                PixelArtButton(context.getString(R.string.suggestions), fontSize = 40.sp,  onClick = { navController.navigate("home") })
+                PixelArtButton(context.getString(R.string.suggestions), fontSize = 40.sp,  onClick = { navController.navigate("suggestions") })
                 Spacer(modifier = Modifier.height(64.dp))
             }
         }

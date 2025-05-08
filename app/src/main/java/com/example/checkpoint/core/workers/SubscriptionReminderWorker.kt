@@ -35,14 +35,12 @@ class SubscriptionReminderWorker(context: Context, workerParams: WorkerParameter
             .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
             .create()
         val subscription = gson.fromJson(subscriptionJson, Subscription::class.java)
-        if(subscription.cost.type != SubscriptionCostType.DAILY) {
-            sendNotification(subscription)
-            GlobalScope.launch {
-                val updatedReminderDate = calculateNextReminderDate(subscription)
-                subscriptionRepository.updateSubscriptionReminderDate(subscription.ID, updatedReminderDate)
-                val subscriptionNewDate = subscription.copy(reminder = subscription.reminder.copy(_dateTime = updatedReminderDate))
-                scheduleReminder(applicationContext, subscriptionNewDate)
-            }
+        sendNotification(subscription, context)
+        GlobalScope.launch {
+            val updatedReminderDate = calculateNextReminderDate(subscription)
+            subscriptionRepository.updateSubscriptionReminderDate(subscription.ID, updatedReminderDate)
+            val subscriptionNewDate = subscription.copy(reminder = subscription.reminder.copy(_dateTime = updatedReminderDate))
+            scheduleReminder(applicationContext, subscriptionNewDate)
         }
         return Result.success()
     }
@@ -67,7 +65,7 @@ class SubscriptionReminderWorker(context: Context, workerParams: WorkerParameter
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun sendNotification(subscription: Subscription) {
+    private fun sendNotification(subscription: Subscription, context: Context) {
         val channelId = "subscription_reminder_channel"
         val notificationId = subscription.ID.hashCode()
 
@@ -84,7 +82,7 @@ class SubscriptionReminderWorker(context: Context, workerParams: WorkerParameter
         }
 
         val daysRemaining = ChronoUnit.DAYS.between(subscription.reminder.dateTime, subscription.renewalDate.dateTime)
-        val notificationText = "$daysRemaining days until your subscription renews!"
+        val notificationText = context.getString(R.string.subscription_reminder_notification_text, daysRemaining)
         val notification = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.icon_info)
             .setContentTitle(subscription.name.name)

@@ -2,12 +2,14 @@ package com.example.checkpoint
 
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -19,6 +21,7 @@ import com.example.checkpoint.ui.theme.CheckPointTheme
 import com.example.checkpoint.ui.views.CreateSubscription
 import com.example.checkpoint.ui.views.Home
 import com.example.checkpoint.core.backend.api.appwrite.AuthService
+import com.example.checkpoint.ui.components.RequestNotificationPermission
 import com.example.checkpoint.ui.views.EditSubscription
 import com.example.checkpoint.ui.views.EditUser
 import com.example.checkpoint.ui.views.ImportSubscriptionsView
@@ -28,6 +31,8 @@ import com.example.checkpoint.ui.views.MenuView
 import com.example.checkpoint.ui.views.Register
 import com.example.checkpoint.ui.views.RetroLoadingScreen
 import com.example.checkpoint.ui.views.Settings
+import com.example.checkpoint.ui.views.Suggestions
+import com.example.checkpoint.ui.views.Summary
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
@@ -36,10 +41,20 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             CheckPointTheme {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    RequestNotificationPermission { granted ->
+                        if (!granted) {
+                            Toast
+                                .makeText(this, "Sin permiso de notificaciones", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    }
+                }
+
                 val navController = rememberNavController()
                 var isAuthenticated by remember { mutableStateOf<Boolean?>(null) }
                 val authService = AuthService(this)
-                var progress by remember { mutableStateOf(0f) }
+                var progress by remember { mutableFloatStateOf(0f) }
 
                 LaunchedEffect(Unit) {
                     for (i in 1..10) {
@@ -97,6 +112,12 @@ fun NavigationGraph(navController: NavHostController, isAuthenticated: Boolean) 
         }
         composable("import_subscriptions") {
             ImportSubscriptionsView(navController)
+        }
+        composable("summary") {
+            Summary(navController)
+        }
+        composable("suggestions") {
+            Suggestions(navController)
         }
     }
 }

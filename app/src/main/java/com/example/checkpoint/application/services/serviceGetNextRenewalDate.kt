@@ -9,7 +9,7 @@ import java.util.Date
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun getNextRenewalDate(subscriptions: List<Subscription>): Pair<String, String>? {
+fun getNextRenewalDate(subscriptions: List<Subscription>): Triple<String, String, String>? {
     val currentDate = System.currentTimeMillis()
 
     val nextRenewal = subscriptions
@@ -18,14 +18,16 @@ fun getNextRenewalDate(subscriptions: List<Subscription>): Pair<String, String>?
             val name = it.name.name
             val dateTime = it.renewalDate.dateTime
             val millis = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-            Triple(name, millis, dateTime)
+            val cost = it.cost.cost.toString()
+            Triple(name, millis, dateTime to cost)
         }
         .filter { it.second > currentDate }
         .minByOrNull { it.second }
 
     return nextRenewal?.let {
         val formattedDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            .format(Date.from(it.third.atZone(ZoneId.systemDefault()).toInstant()))
-        Pair(it.first, formattedDate)
+            .format(Date.from(it.third.first.atZone(ZoneId.systemDefault()).toInstant()))
+        val cost = it.third.second // Extraemos el coste
+        Triple(it.first, formattedDate, cost) // Devolvemos el nombre, fecha y coste
     }
 }

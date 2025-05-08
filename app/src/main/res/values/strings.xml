@@ -1,6 +1,6 @@
-<resources>
-    <!-- REGISTER/LOGIN -->
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Checkpoint</string>
+    <!-- REGISTER/LOGIN -->
     <string name="catchword">WHERE TO STORE YOUR REMINDERS</string>
     <string name="user_name">USERNAME</string>
     <string name="user_password">PASSWORD</string>
@@ -65,6 +65,23 @@
     <string name="import_selected">IMPORT SELECTED</string>
     <string name="no_subscriptions_detected">NO SUBSCRIPTIONS DETECTED</string>
 
+    <!-- SUMMARY -->
+    <string name="view_annual">View annual</string>
+    <string name="view_monthly">View monthly</string>
+    <string name="chart_axis_description">X Axis: Days/Months of the year. Y Axis: Estimated subscription cost.</string>
+    <string name="estimated_annual_expenses">Estimated annual expenses</string>
+    <string name="total_annual_estimated">Total annual estimated: </string>
+    <string name="upcoming_payments_this_month">Upcoming payments this month</string>
+    <string name="total_estimated">Total estimated:</string>
+    <string name="cost_per_payment">Cost per payment:</string>
+    <string name="remaining_payments_this_year">Remaining payments this year: %1$d</string>
+    <string name="total_cost_until_december_31">Total cost until December 31: </string>
+
+    <!-- SUGGESTIONS -->
+    <string name="error_generating_suggestions">COULD NOT GENERATE SUGGESTIONS.</string>
+    <string name="select_subscription">Select a subscription</string>
+    <string name="suggestion_explanation">Choose a subscription and get suggestions for similar services at a lower cost.</string>
+
     <!-- LOADING SCREEN -->
     <string name="loading">LOADING…</string>
 
@@ -77,12 +94,15 @@
     <string name="delete_subscription_title">Delete Subscription</string>
     <string name="delete_subscription_message">Are you sure you want to delete the subscription: %1$s?</string>
     <string name="accept">ACCEPT</string>
-    <string name="cancel">CANCEL</string>
+    <string name="cancel" tools:ignore="ButtonCase">CANCEL</string>
 
 
     <!-- ERRORS -->
     <!-- SUBSCRIPTION COST -->
     <string name="subscription_cost_error">The cost of the subscription must be a positive value or zero</string>
+    <string name="subscription_cost_format_error">The cost must be a positive number using a dot as decimal separator with a maximum of two decimals. Commas are not allowed.</string>
+    <string name="error_number_too_large">The number is too large.</string>
+
 
     <!-- SUBSCRIPTION IMAGE -->
     <string name="subscription_image_error">The image of the subscription must be a valid content, file, or web URL</string>

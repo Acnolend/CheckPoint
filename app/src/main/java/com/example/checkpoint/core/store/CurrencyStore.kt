@@ -18,11 +18,17 @@ object CurrencyStore {
     }
 
     fun getCurrencySymbol(): String = _selectedCurrency.value.symbol
-    fun getCurrencyPosition(): String = _selectedCurrency.value.position
+    private fun getCurrencyPosition(): String = _selectedCurrency.value.position
 
     fun formatPrice(amount: String): String {
         val symbol = getCurrencySymbol()
         val position = getCurrencyPosition()
-        return if (position == "before") "$symbol$amount" else "$amount$symbol"
+
+        val formattedAmount = try {
+            "%.2f".format(amount.toDouble())
+        } catch (e: NumberFormatException) {
+            amount
+        }
+        return if (position == "before") "$symbol$formattedAmount" else "$formattedAmount$symbol"
     }
 }

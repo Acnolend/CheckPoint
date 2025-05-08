@@ -29,7 +29,12 @@ fun validateSubscriptionCostInput(cost: Double, type: String): String? {
         SubscriptionCost(cost, subscriptionCostType)
         null
     } catch (e: IllegalArgumentException) {
-        "subscription_cost_error"
+        when (e.message) {
+            SubscriptionCost.ERROR_WRONG_FORMAT -> "subscription_cost_error"
+            SubscriptionCost.ERROR_WRONG_FORMAT_POINT -> "subscription_cost_format_error"
+            SubscriptionCost.ERROR_TOO_BIG -> "error_number_too_large"
+            else -> null
+        }
     }
 }
 

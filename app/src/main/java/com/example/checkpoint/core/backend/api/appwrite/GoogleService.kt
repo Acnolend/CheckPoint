@@ -189,8 +189,6 @@ class GoogleService {
     }
 
     private suspend fun fetchSubscriptionDetails(query: String): String? {
-        val apiKey = "TU_API_KEY_AQUI"
-
         val request = GenerateContentRequest(
             contents = listOf(
                 Content(

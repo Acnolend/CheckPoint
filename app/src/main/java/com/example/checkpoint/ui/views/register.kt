@@ -65,7 +65,7 @@ fun Register(navController: NavController) {
         Spacer(modifier = Modifier.height(32.dp))
         PixelArtText("CHECKPOINT", color = Color(0xFF4CC9F0), fontSize = 56.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(4.dp))
-        PixelArtText("DONDE GUARDAR TUS RECORDATORIOS", color = Color(0xFFE64CF0), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        PixelArtText(context.getString(R.string.catchword), color = Color(0xFFE64CF0), fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(16.dp))
         Box(
             modifier = Modifier

@@ -1,6 +1,6 @@
 <resources>
+    <string name="app_name">Checkpoint</string>
     <!-- REGISTER/LOGIN -->
-    <string name="app_name">CHECKPOINT</string>
     <string name="catchword">DÄR DU LAGRAR DINA PÅMINNELSER</string>
     <string name="user_name">ANVÄNDARNAMN</string>
     <string name="user_password">LÖSENORD</string>
@@ -65,6 +65,23 @@
     <string name="import_selected">IMPORTERA VALDA</string>
     <string name="no_subscriptions_detected">INGA PRENUMERATIONER UPPTÄCKTA</string>
 
+    <!-- SUMMARY -->
+    <string name="view_annual">Visa årliga</string>
+    <string name="view_monthly">Visa månatliga</string>
+    <string name="chart_axis_description">X-axel: Dagar/månader på året. Y-axel: Beräknad kostnad för prenumerationer.</string>
+    <string name="estimated_annual_expenses">Uppskattade årliga utgifter</string>
+    <string name="total_annual_estimated">Totalt årligt uppskattat:</string>
+    <string name="upcoming_payments_this_month">Kommande betalningar denna månad</string>
+    <string name="total_estimated">Totalt uppskattat:</string>
+    <string name="cost_per_payment">Kostnad per betalning:</string>
+    <string name="remaining_payments_this_year">Återstående betalningar i år: %1$d</string>
+    <string name="total_cost_until_december_31">Total kostnad till 31 december: </string>
+
+    <!-- SUGGESTIONS -->
+    <string name="error_generating_suggestions">KUNDE INTE GENERERA FÖRSLAG.</string>
+    <string name="select_subscription">Välj en prenumeration</string>
+    <string name="suggestion_explanation">Välj en prenumeration och få förslag på liknande tjänster till ett lägre pris.</string>
+
     <!-- LOADING SCREEN -->
     <string name="loading">LADDAR…</string>
 
@@ -83,6 +100,8 @@
     <!-- ERRORS -->
     <!-- SUBSCRIPTION COST -->
     <string name="subscription_cost_error">Abonnemangskostnaden måste vara ett positivt värde eller noll</string>
+    <string name="subscription_cost_format_error">Kostnaden måste vara ett positivt tal med punkt som decimalavskiljare och max två decimaler. Kommategen är inte tillåtna.</string>
+    <string name="error_number_too_large">Numret är för stort.</string>
 
     <!-- SUBSCRIPTION IMAGE -->
     <string name="subscription_image_error">Abonnemangsbilden måste vara ett giltigt innehåll, en fil eller en webbadress</string>
