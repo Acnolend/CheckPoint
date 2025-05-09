@@ -28,6 +28,7 @@ import com.example.checkpoint.ui.views.ImportSubscriptionsView
 import com.example.checkpoint.ui.views.ListSubscription
 import com.example.checkpoint.ui.views.Login
 import com.example.checkpoint.ui.views.MenuView
+import com.example.checkpoint.ui.views.Record
 import com.example.checkpoint.ui.views.Register
 import com.example.checkpoint.ui.views.RetroLoadingScreen
 import com.example.checkpoint.ui.views.Settings
@@ -118,6 +119,9 @@ fun NavigationGraph(navController: NavHostController, isAuthenticated: Boolean) 
         }
         composable("suggestions") {
             Suggestions(navController)
+        }
+        composable("record") {
+            Record(navController)
         }
     }
 }

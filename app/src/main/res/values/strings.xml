@@ -52,7 +52,7 @@
 
     <!-- MENU VIEW -->
     <string name="summary">SUMMARY</string>
-    <string name="history">HISTORY</string>
+    <string name="record">RECORD</string>
     <string name="list">LIST</string>
     <string name="suggestions">SUGGESTIONS</string>
 

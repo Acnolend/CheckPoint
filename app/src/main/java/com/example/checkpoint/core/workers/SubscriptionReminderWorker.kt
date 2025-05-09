@@ -35,7 +35,9 @@ class SubscriptionReminderWorker(context: Context, workerParams: WorkerParameter
             .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
             .create()
         val subscription = gson.fromJson(subscriptionJson, Subscription::class.java)
-        sendNotification(subscription, context)
+        if(subscription.cost.type != SubscriptionCostType.DAILY) {
+            sendNotification(subscription, context)
+        }
         GlobalScope.launch {
             val updatedReminderDate = calculateNextReminderDate(subscription)
             subscriptionRepository.updateSubscriptionReminderDate(subscription.ID, updatedReminderDate)
