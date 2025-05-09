@@ -1,9 +1,9 @@
 package com.example.checkpoint.ui.views
 
-
-
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,7 +44,10 @@ import com.example.checkpoint.ui.components.PixelArtTextField
 import com.example.checkpoint.ui.components.SubscriptionFilterDropdown
 import com.example.checkpoint.ui.components.SubscriptionRead
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ListSubscription(navController: NavController) {
@@ -57,6 +60,7 @@ fun ListSubscription(navController: NavController) {
     val appwriteService = AppwriteService(context)
     val subscriptionRepository = SubscriptionRepository(appwriteService)
     val deleteSubscriptionUseCase: usecaseDeleteSubscription = serviceDeleteSubscription(subscriptionRepository)
+    val today = LocalDate.now()
 
     val subscriptions = SubscriptionStore.subscriptions.collectAsState().value
 
@@ -129,7 +133,8 @@ fun ListSubscription(navController: NavController) {
                         onDeleteClick = {
                             subscriptionToDelete = subscription
                             showPopup = true
-                        }
+                        },
+                        isRenewalSoon = ChronoUnit.DAYS.between(today, subscription.renewalDate.dateTime) in 1..2
                     )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
@@ -160,5 +165,4 @@ fun ListSubscription(navController: NavController) {
             }
         )
     }
-
 }

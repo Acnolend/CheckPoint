@@ -98,6 +98,9 @@
 
 
     <!-- ERRORS -->
+    <!-- NO URL CANCEL -->
+    <string name="no_url_cancel">Det gick inte att hämta länken</string>
+
     <!-- SUBSCRIPTION COST -->
     <string name="subscription_cost_error">Abonnemangskostnaden måste vara ett positivt värde eller noll</string>
     <string name="subscription_cost_format_error">Kostnaden måste vara ett positivt tal med punkt som decimalavskiljare och max två decimaler. Kommategen är inte tillåtna.</string>

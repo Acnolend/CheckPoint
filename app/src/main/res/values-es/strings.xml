@@ -98,6 +98,9 @@
 
 
     <!-- ERRORS -->
+    <!-- NO URL CANCEL -->
+    <string name="no_url_cancel">No se pudo obtener el enlace.</string>
+
     <!-- SUBSCRIPTION COST -->
     <string name="subscription_cost_error">El coste de la suscripción debe ser un valor positivo o cero</string>
     <string name="subscription_cost_format_error">El coste debe ser un número positivo usando punto como separador decimal y con un máximo de dos decimales. Las comas no son permitidas.</string>

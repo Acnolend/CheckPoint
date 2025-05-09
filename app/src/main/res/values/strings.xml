@@ -98,11 +98,13 @@
 
 
     <!-- ERRORS -->
+    <!-- NO URL CANCEL -->
+    <string name="no_url_cancel">Could not retrieve the link</string>
+
     <!-- SUBSCRIPTION COST -->
     <string name="subscription_cost_error">The cost of the subscription must be a positive value or zero</string>
     <string name="subscription_cost_format_error">The cost must be a positive number using a dot as decimal separator with a maximum of two decimals. Commas are not allowed.</string>
     <string name="error_number_too_large">The number is too large.</string>
-
 
     <!-- SUBSCRIPTION IMAGE -->
     <string name="subscription_image_error">The image of the subscription must be a valid content, file, or web URL</string>

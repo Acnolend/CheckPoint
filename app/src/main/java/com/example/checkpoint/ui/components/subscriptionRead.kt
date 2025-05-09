@@ -1,6 +1,9 @@
 package com.example.checkpoint.ui.components
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,10 +27,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.checkpoint.R
+import com.example.checkpoint.application.services.cancelSubscriptionURL
 import com.example.checkpoint.core.backend.domain.enumerate.SubscriptionCostType
 import com.example.checkpoint.core.store.CurrencyStore
+import kotlinx.coroutines.launch
 
 @Composable
 fun SubscriptionRead(
@@ -35,10 +42,12 @@ fun SubscriptionRead(
     cost: String,
     costType: String,
     onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    isRenewalSoon: Boolean
     ) {
 
     val context: Context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val stringResId = when (costType) {
         SubscriptionCostType.DAILY.toString() -> R.string.daily
         SubscriptionCostType.WEEKLY.toString() -> R.string.weekly
@@ -53,7 +62,7 @@ fun SubscriptionRead(
     Box(
         modifier = Modifier
             .width(300.dp)
-            .height(100.dp)
+            .height(125.dp)
             .background(Color.White)
             .padding(16.dp)
             .clip(RoundedCornerShape(8.dp))
@@ -85,6 +94,30 @@ fun SubscriptionRead(
                     PixelArtText(CurrencyStore.formatPrice(cost), color = Color(0xFF4CC9F0))
                     Spacer(modifier = Modifier.width(8.dp))
                     PixelArtText(context.getString(stringResId),color = Color(0xFF4CC9F0)
+                    )
+                }
+
+                if (isRenewalSoon) {
+                    PixelArtButton(
+                        text = context.getString(R.string.cancel),
+                        fontSize = 16.sp,
+                        onClick = {
+                            coroutineScope.launch {
+                                val url = cancelSubscriptionURL(name)
+                                if (!url.isNullOrBlank() && (url.startsWith("http://") || url.startsWith("https://"))) {
+                                    try {
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                        context.startActivity(intent)
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                        Toast.makeText(context, context.getString(R.string.no_url_cancel), Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    Toast.makeText(context, context.getString(R.string.no_url_cancel), Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        },
+                        color = Color(0xFFFF4081)
                     )
                 }
             }
