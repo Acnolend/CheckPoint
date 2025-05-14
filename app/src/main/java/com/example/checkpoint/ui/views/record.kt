@@ -4,14 +4,20 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +54,10 @@ fun Record(navController: NavController) {
     val showPopup = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
+    val pageSize = 10
+    val currentPage = remember { mutableIntStateOf(1) }
+    val displayedPayments = payments.take(currentPage.intValue * pageSize)
+
     LaunchedEffect(Unit) {
         val userId = authService.getUserIdActual().toString().substringAfter("(").substringBefore(")")
         payments.clear()
@@ -70,14 +80,14 @@ fun Record(navController: NavController) {
         )
     }
 
-    OwnScaffold(navController,
+    OwnScaffold(navController, isScrollable = false,
         content = { modifier ->
             Column(
                 modifier = modifier.fillMaxSize().padding(16.dp),
                 verticalArrangement = Arrangement.Top
             ) {
                 PixelArtText(
-                    "HISTORIAL DE PAGOS",
+                    context.getString(R.string.payment_history),
                     fontSize = 32.sp,
                     textAlign = TextAlign.Center,
                     color = Color(0xFFE64CF0),
@@ -92,7 +102,7 @@ fun Record(navController: NavController) {
                     horizontalArrangement = Arrangement.End
                 ) {
                     PixelArtButton(
-                        text = "Limpiar",
+                        text = context.getString(R.string.clean),
                         onClick = {
                             showPopup.value = true
                         },
@@ -102,17 +112,36 @@ fun Record(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                payments.forEach { payment ->
-                    val name = payment.getString("subscriptionName")
-                    val amount = payment.getString("amount")
-                    val date = payment.getString("date")
+                val listState = rememberLazyListState()
 
-                    PaymentRead(
-                        name = name,
-                        amount = amount,
-                        date = date
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(displayedPayments) { payment ->
+                        val name = payment.getString("subscriptionName")
+                        val amount = payment.getString("amount")
+                        val date = payment.getString("date")
+
+                        PaymentRead(
+                            name = name,
+                            amount = amount,
+                            date = date
+                        )
+                    }
+
+                    if (displayedPayments.size < payments.size) {
+                        item {
+                            LaunchedEffect(remember { derivedStateOf { listState.firstVisibleItemIndex } }) {
+                                val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+                                if (lastVisibleItem != null && lastVisibleItem.index == displayedPayments.size - 1) {
+                                    currentPage.intValue += 1
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

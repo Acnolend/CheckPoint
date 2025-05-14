@@ -82,6 +82,10 @@
     <string name="select_subscription">Välj en prenumeration</string>
     <string name="suggestion_explanation">Välj en prenumeration och få förslag på liknande tjänster till ett lägre pris.</string>
 
+    <!-- RECORD -->
+    <string name="payment_history">BETALNINGSHISTORIK</string>
+    <string name="clean">RENA</string>
+
     <!-- LOADING SCREEN -->
     <string name="loading">LADDAR…</string>
 

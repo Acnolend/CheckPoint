@@ -2,6 +2,7 @@ package com.example.checkpoint.core.backend.api.appwrite
 
 import android.util.Base64
 import android.util.Log
+import com.example.checkpoint.BuildConfig
 import com.example.checkpoint.core.backend.api.request.Content
 import com.example.checkpoint.core.backend.api.request.GenerateContentRequest
 import com.example.checkpoint.core.backend.api.request.Part
@@ -34,7 +35,9 @@ class GoogleService {
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream, StandardCharsets.UTF_8))
                 val response = reader.readText()
-                reader.close()
+                withContext(Dispatchers.IO) {
+                    reader.close()
+                }
 
                 val jsonResponse = JSONObject(response)
                 val messages = jsonResponse.getJSONArray("messages")
@@ -200,7 +203,7 @@ class GoogleService {
         )
 
         return try {
-            val response = RetrofitInstance.api.generateContent("AIzaSyAO3hyaPl7GqWhMCz2_S0MTN9jst5XFxeE", request)
+            val response = RetrofitInstance.api.generateContent(BuildConfig.GEMINI_API, request)
 
             if (response.isSuccessful) {
                 response.body()?.candidates?.firstOrNull()

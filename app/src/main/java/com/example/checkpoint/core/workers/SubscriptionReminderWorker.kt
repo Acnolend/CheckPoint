@@ -6,7 +6,7 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.checkpoint.R
 import com.example.checkpoint.application.services.scheduleReminder
@@ -16,58 +16,60 @@ import com.example.checkpoint.core.backend.api.appwrite.SubscriptionRepository
 import com.example.checkpoint.core.backend.domain.entities.Subscription
 import com.example.checkpoint.core.backend.domain.enumerate.SubscriptionCostType
 import com.google.gson.GsonBuilder
-import kotlinx.coroutines.DelicateCoroutinesApi
 import java.time.LocalDateTime
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.time.temporal.ChronoUnit
 
-class SubscriptionReminderWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
+class SubscriptionReminderWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
     private val appwriteService = AppwriteService(context)
     private val subscriptionRepository = SubscriptionRepository(appwriteService)
-    private val context: Context = context
 
-    @OptIn(DelicateCoroutinesApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         val subscriptionJson = inputData.getString("subscription")
         val gson = GsonBuilder()
             .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
             .create()
         val subscription = gson.fromJson(subscriptionJson, Subscription::class.java)
-        if(subscription.cost.type != SubscriptionCostType.DAILY) {
-            sendNotification(subscription, context)
+
+        if (subscription.cost.type != SubscriptionCostType.DAILY) {
+            sendNotification(subscription)
         }
-        GlobalScope.launch {
-            val updatedReminderDate = calculateNextReminderDate(subscription)
-            subscriptionRepository.updateSubscriptionReminderDate(subscription.ID, updatedReminderDate)
-            val subscriptionNewDate = subscription.copy(reminder = subscription.reminder.copy(_dateTime = updatedReminderDate))
-            scheduleReminder(applicationContext, subscriptionNewDate)
-        }
+
+        val updatedReminderDate = calculateNextReminderDate(subscription)
+        subscriptionRepository.updateSubscriptionReminderDate(subscription.ID, updatedReminderDate)
+
+        val subscriptionNewDate = subscription.copy(reminder = subscription.reminder.copy(_dateTime = updatedReminderDate))
+        scheduleReminder(applicationContext, subscriptionNewDate)
+
         return Result.success()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun calculateNextReminderDate(subscription: Subscription): LocalDateTime {
-        val nextRenewal = when (subscription.cost.type) {
-            SubscriptionCostType.DAILY -> subscription.renewalDate.dateTime.plusDays(1)
-            SubscriptionCostType.WEEKLY -> subscription.renewalDate.dateTime.plusWeeks(1)
-            SubscriptionCostType.BIWEEKLY -> subscription.renewalDate.dateTime.plusWeeks(2)
-            SubscriptionCostType.MONTHLY -> subscription.renewalDate.dateTime.plusMonths(1)
-            SubscriptionCostType.BIMONTHLY -> subscription.renewalDate.dateTime.plusMonths(2)
-            SubscriptionCostType.QUARTERLY -> subscription.renewalDate.dateTime.plusMonths(3)
-            SubscriptionCostType.SEMIANNUAL -> subscription.renewalDate.dateTime.plusMonths(6)
-            SubscriptionCostType.ANNUAL -> subscription.renewalDate.dateTime.plusYears(1)
+        var nextRenewal = subscription.renewalDate.dateTime
+        while (nextRenewal.isBefore(LocalDateTime.now())) {
+            nextRenewal = when (subscription.cost.type) {
+                SubscriptionCostType.DAILY -> nextRenewal.plusDays(1)
+                SubscriptionCostType.WEEKLY -> nextRenewal.plusWeeks(1)
+                SubscriptionCostType.BIWEEKLY -> nextRenewal.plusWeeks(2)
+                SubscriptionCostType.MONTHLY -> nextRenewal.plusMonths(1)
+                SubscriptionCostType.BIMONTHLY -> nextRenewal.plusMonths(2)
+                SubscriptionCostType.QUARTERLY -> nextRenewal.plusMonths(3)
+                SubscriptionCostType.SEMIANNUAL -> nextRenewal.plusMonths(6)
+                SubscriptionCostType.ANNUAL -> nextRenewal.plusYears(1)
+            }
         }
+
         val daysBefore = java.time.Duration.between(
             subscription.reminder.dateTime,
             subscription.renewalDate.dateTime
         ).toDays()
+
         return nextRenewal.minusDays(daysBefore)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun sendNotification(subscription: Subscription, context: Context) {
+    private fun sendNotification(subscription: Subscription) {
         val channelId = "subscription_reminder_channel"
         val notificationId = subscription.ID.hashCode()
 
@@ -84,7 +86,7 @@ class SubscriptionReminderWorker(context: Context, workerParams: WorkerParameter
         }
 
         val daysRemaining = ChronoUnit.DAYS.between(subscription.reminder.dateTime, subscription.renewalDate.dateTime)
-        val notificationText = context.getString(R.string.subscription_reminder_notification_text, daysRemaining)
+        val notificationText = applicationContext.getString(R.string.subscription_reminder_notification_text, daysRemaining)
         val notification = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.icon_info)
             .setContentTitle(subscription.name.name)

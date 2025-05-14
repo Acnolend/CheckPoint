@@ -4,23 +4,25 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import io.appwrite.Client
-import io.appwrite.services.Databases
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import io.appwrite.Client
 import io.appwrite.extensions.gson
 import io.appwrite.models.Document
 import io.appwrite.models.InputFile
+import io.appwrite.services.Databases
 import io.appwrite.services.Storage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.util.UUID
-
+import com.example.checkpoint.BuildConfig
 
 class AppwriteService(context: Context) {
 
     private val client = Client(context)
-        .setEndpoint("https://fra.cloud.appwrite.io/v1")
-        .setProject("67f11f87002b613f4e14")
+        .setEndpoint(BuildConfig.ENDPOINT_APPWRITE)
+        .setProject(BuildConfig.PROJECT_ID)
         .setSelfSigned(true)
 
     private val database = Databases(client)
@@ -30,7 +32,7 @@ class AppwriteService(context: Context) {
         val dataMap = data?.toMap() ?: emptyMap()
 
         database.createDocument(
-            databaseId = "67f16b4800153970e87a",
+            databaseId = BuildConfig.DATABASE_ID,
             collectionId = collectionId,
             documentId = documentId,
             data = dataMap as Any
@@ -57,7 +59,7 @@ class AppwriteService(context: Context) {
     }
 
     suspend fun deleteStorage(file: String) {
-        storage.deleteFile("67f4196f003826072308", file.substringAfter("/files/").substringBefore("/"))
+        storage.deleteFile(BuildConfig.BUCKET_ID, file.substringAfter("/files/").substringBefore("/"))
     }
 
     suspend fun <T> get(databaseId: String, collectionId: String, documentId: String, clazz: Class<T>): T? {
@@ -93,24 +95,28 @@ class AppwriteService(context: Context) {
             val originalInputStream = contentResolver.openInputStream(imageUri)
                 ?: throw Exception("InputStream is null")
             val bitmap = BitmapFactory.decodeStream(originalInputStream)
-            originalInputStream.close()
+            withContext(Dispatchers.IO) {
+                originalInputStream.close()
+            }
 
             val outputStream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
 
             val byteArray = outputStream.toByteArray()
-            outputStream.close()
+            withContext(Dispatchers.IO) {
+                outputStream.close()
+            }
 
             val mimeType = "image/jpeg"
             val fileName = "image_${System.currentTimeMillis()}.jpeg"
             val inputFile = InputFile.fromBytes(byteArray, fileName, mimeType)
 
             val response = storage.createFile(
-                bucketId = "67f4196f003826072308",
+                bucketId = BuildConfig.BUCKET_ID,
                 fileId = fileId,
                 file = inputFile
             )
-            val fileUrl = "https://cloud.appwrite.io/v1/storage/buckets/67f4196f003826072308/files/${response.id}/view?project=67f11f87002b613f4e14"
+            val fileUrl = "https://cloud.appwrite.io/v1/storage/buckets/${BuildConfig.BUCKET_ID}/files/${response.id}/view?project=${BuildConfig.PROJECT_ID}"
             fileUrl
 
         } catch (e: Exception) {

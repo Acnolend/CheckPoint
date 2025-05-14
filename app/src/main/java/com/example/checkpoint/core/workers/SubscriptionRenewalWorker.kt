@@ -6,7 +6,7 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.checkpoint.R
 import com.example.checkpoint.application.services.scheduleRenewal
@@ -18,23 +18,18 @@ import com.example.checkpoint.core.backend.api.appwrite.SubscriptionRepository
 import com.example.checkpoint.core.backend.domain.entities.Subscription
 import com.example.checkpoint.core.backend.domain.enumerate.SubscriptionCostType
 import com.google.gson.GsonBuilder
-import kotlinx.coroutines.DelicateCoroutinesApi
 import java.time.LocalDateTime
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-class SubscriptionRenewalWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
+class SubscriptionRenewalWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
     private val appwriteService = AppwriteService(context)
     val authService = AuthService(context)
     private val subscriptionRepository = SubscriptionRepository(appwriteService)
     private val paymentRepository = PaymentRepository(appwriteService)
-    private val context: Context = context
 
-    @OptIn(DelicateCoroutinesApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         val subscriptionJson = inputData.getString("subscription")
 
         if (subscriptionJson.isNullOrEmpty()) {
@@ -44,19 +39,35 @@ class SubscriptionRenewalWorker(context: Context, workerParams: WorkerParameters
         val gson = GsonBuilder()
             .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
             .create()
+
         val subscription = gson.fromJson(subscriptionJson, Subscription::class.java)
 
-        sendNotification(subscription, context)
-        GlobalScope.launch {
-            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-            val formattedDate = subscription.renewalDate.dateTime.format(formatter)
-            val userId = authService.getUserIdActual().toString().substringAfter("(").substringBefore(")")
-            paymentRepository.savePayment(userId, subscription.name.name, UUID.randomUUID().toString().replace("-", ""),subscription.cost.cost,formattedDate)
-            val updatedRenewalDate = calculateNextRenewalDate(subscription)
-            subscriptionRepository.updateSubscriptionRenewalDate(subscription.ID, updatedRenewalDate)
-            val subscriptionNewDate = subscription.copy(reminder = subscription.reminder.copy(_dateTime = updatedRenewalDate))
-            scheduleRenewal(applicationContext, subscriptionNewDate)
-        }
+        sendNotification(subscription)
+
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val formattedDate = subscription.renewalDate.dateTime.format(formatter)
+        val userId = authService.getUserIdActual()
+            .toString()
+            .substringAfter("(")
+            .substringBefore(")")
+
+        paymentRepository.savePayment(
+            userId,
+            subscription.name.name,
+            UUID.randomUUID().toString().replace("-", ""),
+            subscription.cost.cost,
+            formattedDate
+        )
+
+        val updatedRenewalDate = calculateNextRenewalDate(subscription)
+        subscriptionRepository.updateSubscriptionRenewalDate(subscription.ID, updatedRenewalDate)
+
+        val subscriptionNewDate = subscription.copy(
+            reminder = subscription.reminder.copy(_dateTime = updatedRenewalDate)
+        )
+
+        scheduleRenewal(applicationContext, subscriptionNewDate)
+
         return Result.success()
     }
 
@@ -74,7 +85,7 @@ class SubscriptionRenewalWorker(context: Context, workerParams: WorkerParameters
         }
     }
 
-    private fun sendNotification(subscription: Subscription, context: Context) {
+    private fun sendNotification(subscription: Subscription) {
         val channelId = "subscription_renewal_channel"
         val notificationId = subscription.ID.hashCode()
 
@@ -93,7 +104,7 @@ class SubscriptionRenewalWorker(context: Context, workerParams: WorkerParameters
         val notification = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.icon_money)
             .setContentTitle(subscription.name.name)
-            .setContentText(context.getString(R.string.subscription_renewal_notification_text))
+            .setContentText(applicationContext.getString(R.string.subscription_renewal_notification_text))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()

@@ -61,7 +61,7 @@
     <string name="all">ALL</string>
 
     <!-- IMPORT SUBSCRIPTION -->
-    <string name="detected_subscriptions">>DETECTED SUBSCRIPTIONS</string>
+    <string name="detected_subscriptions">DETECTED SUBSCRIPTIONS</string>
     <string name="import_selected">IMPORT SELECTED</string>
     <string name="no_subscriptions_detected">NO SUBSCRIPTIONS DETECTED</string>
 
@@ -81,6 +81,12 @@
     <string name="error_generating_suggestions">COULD NOT GENERATE SUGGESTIONS.</string>
     <string name="select_subscription">Select a subscription</string>
     <string name="suggestion_explanation">Choose a subscription and get suggestions for similar services at a lower cost.</string>
+
+    <!-- RECORD -->
+    <string name="payment_history">PAYMENT HISTORY</string>
+    <string name="clean">CLEAN</string>
+
+
 
     <!-- LOADING SCREEN -->
     <string name="loading">LOADING…</string>

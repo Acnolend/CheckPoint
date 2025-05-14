@@ -16,7 +16,8 @@ import androidx.navigation.NavController
 fun OwnScaffold(
     navController: NavController,
     content: @Composable (Modifier) -> Unit,
-    color: Color = Color(0xFF4895EF)
+    color: Color = Color(0xFF4895EF),
+    isScrollable: Boolean = true
 ) {
     Scaffold(
         topBar = {
@@ -30,8 +31,12 @@ fun OwnScaffold(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(color)
+                    .padding(paddingValues)
+                    .let {
+                        if (isScrollable) it.verticalScroll(rememberScrollState()) else it
+                    }
             ) {
-                content(Modifier.padding(paddingValues).verticalScroll(rememberScrollState()))
+                content(Modifier)
             }
         }
     )

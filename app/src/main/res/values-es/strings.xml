@@ -82,6 +82,10 @@
     <string name="select_subscription">Selecciona una suscripción</string>
     <string name="suggestion_explanation">Elige una suscripción y obtén sugerencias de servicios similares a un coste más bajo.</string>
 
+    <!-- RECORD -->
+    <string name="payment_history">HISTORIAL DE PAGOS</string>
+    <string name="clean">LIMPIAR</string>
+
     <!-- LOADING SCREEN -->
     <string name="loading">CARGANDO…</string>
 

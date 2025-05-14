@@ -75,7 +75,6 @@ fun ImportSubscriptionsView(navController: NavController) {
     LaunchedEffect(Unit) {
         val service = GoogleService()
         val token = authService.getValidAccessToken(context)
-        println(token)
 
         val totalSteps = 100
         for (step in 1..totalSteps) {
@@ -102,9 +101,14 @@ fun ImportSubscriptionsView(navController: NavController) {
                 val obj = item.asJsonObject
 
                 val renewalDate = try {
-                    LocalDate.parse(obj["subscriptionRenewalDate"].asString)
+                    val dateElement = obj["subscriptionRenewalDate"]
+                    if (dateElement != null && !dateElement.isJsonNull) {
+                        LocalDate.parse(dateElement.asString)
+                    } else {
+                        LocalDate.now()
+                    }
                 } catch (e: Exception) {
-                    Log.e("JsonParseError", "Error al parsear la fecha: ${obj["subscriptionRenewalDate"].asString}")
+                    Log.e("JsonParseError", "Error al parsear la fecha", e)
                     LocalDate.now()
                 }
 
@@ -112,17 +116,30 @@ fun ImportSubscriptionsView(navController: NavController) {
                     when {
                         prim.isJsonNull -> null
                         prim.asString.isBlank() -> null
-                        prim.isJsonPrimitive && prim.asJsonPrimitive.isNumber ->
-                            prim.asDouble
+                        prim.isJsonPrimitive && prim.asJsonPrimitive.isNumber -> prim.asDouble
                         else -> prim.asString.toDoubleOrNull()
                     }
                 }
 
+                val name = obj["subscriptionName"]?.takeIf { !it.isJsonNull }?.asString ?: "Sin nombre"
+
+                val costType = try {
+                    val costTypeElement = obj["subscriptionCostType"]
+                    if (costTypeElement != null && !costTypeElement.isJsonNull) {
+                        SubscriptionCostType.valueOf(costTypeElement.asString)
+                    } else {
+                        SubscriptionCostType.MONTHLY
+                    }
+                } catch (e: Exception) {
+                    Log.e("JsonParseError", "Error al parsear el tipo de costo", e)
+                    SubscriptionCostType.MONTHLY
+                }
+
                 SubscriptionEditableState(
-                    name = obj["subscriptionName"].asString,
+                    name = name,
                     renewalDate = renewalDate,
                     cost = parsedCost ?: 0.0,
-                    costType = SubscriptionCostType.valueOf(obj["subscriptionCostType"].asString)
+                    costType = costType
                 )
             })
         } catch (e: JsonSyntaxException) {

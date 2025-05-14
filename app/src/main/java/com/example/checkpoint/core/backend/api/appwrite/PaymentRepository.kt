@@ -2,14 +2,15 @@ package com.example.checkpoint.core.backend.api.appwrite
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.checkpoint.BuildConfig
 import io.appwrite.Query
 import org.json.JSONObject
 
 
 class PaymentRepository(private val appwriteService: AppwriteService) {
 
-    private val databaseId = "67f16b4800153970e87a"
-    private val collectionId = "681e362d0024d00b6af2"
+    private val databaseId = BuildConfig.DATABASE_ID
+    private val collectionId = BuildConfig.PAYMENT_COLLECTION
 
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun savePayment(userId: String, name: String, documentId: String, amount: Double, date: String) {

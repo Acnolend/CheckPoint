@@ -1,3 +1,6 @@
+import java.util.Properties
+
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,9 +9,21 @@ plugins {
 
 }
 
+val localProperties = Properties().apply {
+    val localFile = rootProject.file("local.properties")
+    if (localFile.exists()) {
+        load(localFile.inputStream())
+    }
+}
+
+
 android {
     namespace = "com.example.checkpoint"
     compileSdk = 35
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "com.example.checkpoint"
@@ -22,7 +37,14 @@ android {
             useSupportLibrary = true
         }
 
-
+        buildConfigField("String", "ENDPOINT_APPWRITE", "\"${localProperties.getProperty("ENDPOINT_APPWRITE")}\"")
+        buildConfigField("String", "PROJECT_ID", "\"${localProperties.getProperty("PROJECT_ID")}\"")
+        buildConfigField("String", "DATABASE_ID", "\"${localProperties.getProperty("DATABASE_ID")}\"")
+        buildConfigField("String", "BUCKET_ID", "\"${localProperties.getProperty("BUCKET_ID")}\"")
+        buildConfigField("String", "USER_COLLECTION", "\"${localProperties.getProperty("USER_COLLECTION")}\"")
+        buildConfigField("String", "SUBSCRIPTION_COLLECTION", "\"${localProperties.getProperty("SUBSCRIPTION_COLLECTION")}\"")
+        buildConfigField("String", "PAYMENT_COLLECTION", "\"${localProperties.getProperty("PAYMENT_COLLECTION")}\"")
+        buildConfigField("String", "GEMINI_API", "\"${localProperties.getProperty("GEMINI_API")}\"")
     }
 
     buildTypes {

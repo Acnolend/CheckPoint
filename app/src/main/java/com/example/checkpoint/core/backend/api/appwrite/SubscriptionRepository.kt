@@ -13,11 +13,12 @@ import com.example.checkpoint.core.backend.domain.valueobjects.SubscriptionRenew
 import io.appwrite.Query
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import com.example.checkpoint.BuildConfig
 
 class SubscriptionRepository(private val appwriteService: AppwriteService) {
 
-    private val databaseId = "67f16b4800153970e87a"
-    private val collectionId = "67f1730c001c5348bb6a"
+    private val databaseId = BuildConfig.DATABASE_ID
+    private val collectionId = BuildConfig.SUBSCRIPTION_COLLECTION
 
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun saveSubscription(userId: String, subscription: Subscription, documentId: String) {

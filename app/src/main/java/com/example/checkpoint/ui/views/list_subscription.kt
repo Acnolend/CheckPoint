@@ -1,11 +1,12 @@
 package com.example.checkpoint.ui.views
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,9 +14,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -48,7 +55,6 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ListSubscription(navController: NavController) {
 
@@ -73,54 +79,72 @@ fun ListSubscription(navController: NavController) {
         matchesSearch && matchesFilter
     }
 
+    val pageSize = 10
+    val currentPage = remember { mutableIntStateOf(1) }
+    val displayedSubscriptions = filteredSubscriptions.take(currentPage.intValue * pageSize)
+
+    Log.d("ListSubscription", "Tamaño de displayedSubscriptions: ${displayedSubscriptions.size}")
+
+
     var subscriptionToDelete by remember { mutableStateOf<Subscription?>(null) }
 
-    OwnScaffold(navController,
-        content = { modifier ->
+    OwnScaffold(navController, isScrollable = false, content = { modifier ->
+        Column(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(24.dp))
+            PixelArtText(
+                text = context.getString(R.string.active_subs),
+                fontSize = 28.sp,
+                color = Color(0xFFE64CF0),
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(24.dp))
             Column(
-                modifier = modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Spacer(modifier = Modifier.height(24.dp))
-                PixelArtText(
-                    text = context.getString(R.string.active_subs),
-                    fontSize = 28.sp,
-                    color = Color(0xFFE64CF0),
-                    fontWeight = FontWeight.Bold
+                PixelArtTextField(
+                    label = context.getString(R.string.search),
+                    text = searchText.value,
+                    onTextChange = { searchText.value = it },
+                    modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    PixelArtTextField(
-                        label = context.getString(R.string.search),
-                        text = searchText.value,
-                        onTextChange = { searchText.value = it },
-                        modifier = Modifier.fillMaxWidth()
+                    PixelArtText(
+                        text = context.getString(R.string.select_subscription_type)+":",
+                        fontSize = 18.sp
                     )
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        PixelArtText(
-                            text = context.getString(R.string.select_subscription_type)+":",
-                            fontSize = 18.sp
-                        )
+                    Spacer(modifier = Modifier.width(8.dp))
 
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        SubscriptionFilterDropdown(
-                            selectedType = selectedFilter.value,
-                            onTypeSelected = { selectedFilter.value = it }
-                        )
-                    }
+                    SubscriptionFilterDropdown(
+                        selectedType = selectedFilter.value,
+                        onTypeSelected = { selectedFilter.value = it }
+                    )
                 }
-                filteredSubscriptions.forEach { subscription ->
-                    Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            val listState = rememberLazyListState()
+
+            Spacer(modifier = Modifier.height(24.dp))
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                items(displayedSubscriptions) { subscription ->
                     SubscriptionRead(
                         subscription.name.name,
                         subscription.image.image,
@@ -137,10 +161,22 @@ fun ListSubscription(navController: NavController) {
                         isRenewalSoon = ChronoUnit.DAYS.between(today, subscription.renewalDate.dateTime) in 1..2
                     )
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+
+                if (displayedSubscriptions.size < filteredSubscriptions.size) {
+                    item {
+                        LaunchedEffect(remember { derivedStateOf { listState.firstVisibleItemIndex } }) {
+                            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+                            if (lastVisibleItem != null && lastVisibleItem.index == displayedSubscriptions.size - 1) {
+                                currentPage.intValue += 1
+                            }
+                        }
+                    }
+                }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
-    )
+    })
 
     if (showPopup && subscriptionToDelete != null) {
         PixelArtPopup(

@@ -1,5 +1,6 @@
 package com.example.checkpoint.application.services
 
+import com.example.checkpoint.BuildConfig
 import com.example.checkpoint.core.backend.api.appwrite.RetrofitInstance
 import com.example.checkpoint.core.backend.api.request.Content
 import com.example.checkpoint.core.backend.api.request.GenerateContentRequest
@@ -22,7 +23,7 @@ suspend fun cancelSubscriptionURL(subscriptionName: String): String? {
     )
 
     return try {
-        val response = RetrofitInstance.api.generateContent("AIzaSyAO3hyaPl7GqWhMCz2_S0MTN9jst5XFxeE", request)
+        val response = RetrofitInstance.api.generateContent(BuildConfig.GEMINI_API, request)
 
         if (response.isSuccessful) {
             response.body()?.candidates?.firstOrNull()

@@ -14,12 +14,15 @@ import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.work.WorkManager
 import com.example.checkpoint.application.services.isDefaultImageUrl
-import java.time.Instant
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
+import com.example.checkpoint.BuildConfig
 
 class AuthService(context: Context) {
     private val client = Client(context)
-        .setEndpoint("https://fra.cloud.appwrite.io/v1")
-        .setProject("67f11f87002b613f4e14")
+        .setEndpoint(BuildConfig.ENDPOINT_APPWRITE)
+        .setProject(BuildConfig.PROJECT_ID)
         .setSelfSigned(true)
 
     private val account = Account(client)
@@ -58,13 +61,15 @@ class AuthService(context: Context) {
 
             val database = Databases(client)
             database.createDocument(
-                databaseId = "67f16b4800153970e87a",
+                databaseId = BuildConfig.DATABASE_ID,
                 collectionId = "67f19662003ce0c8e7d5",
                 documentId = userId,
                 data = mapOf("userName" to userName)
             )
 
             val session = account.createEmailPasswordSession(email, password)
+
+
 
             Result.success(session.userId)
         } catch (e: AppwriteException) {
@@ -129,13 +134,13 @@ class AuthService(context: Context) {
             if (newUserName.isNotEmpty() && newUserName != currentUserName) {
                 val database = Databases(client)
                 database.getDocument(
-                    databaseId = "67f16b4800153970e87a",
-                    collectionId = "67f19662003ce0c8e7d5",
+                    databaseId = BuildConfig.DATABASE_ID,
+                    collectionId = BuildConfig.USER_COLLECTION,
                     documentId = userId
                 )
                 database.updateDocument(
-                    databaseId = "67f16b4800153970e87a",
-                    collectionId = "67f19662003ce0c8e7d5",
+                    databaseId = BuildConfig.DATABASE_ID,
+                    collectionId = BuildConfig.USER_COLLECTION,
                     documentId = userId,
                     data = mapOf("userName" to newUserName)
                 )
@@ -161,8 +166,8 @@ class AuthService(context: Context) {
             val query = listOf(Query.equal("userId", userId))
             val queryStrings = query.map { it }
             val documents = database.listDocuments(
-                databaseId = "67f16b4800153970e87a",
-                collectionId = "67f1730c001c5348bb6a",
+                databaseId = BuildConfig.DATABASE_ID,
+                collectionId = BuildConfig.SUBSCRIPTION_COLLECTION,
                 queries = queryStrings
             )
             for (document in documents.documents) {
@@ -171,11 +176,11 @@ class AuthService(context: Context) {
                 val fileId = extractFileIdFromUrl(imageUrl)
                 println(fileId)
                 if (fileId != null && imageUrl != null && !isDefaultImageUrl(imageUrl)) {
-                    storage.deleteFile("67f4196f003826072308", fileId)
+                    storage.deleteFile(BuildConfig.BUCKET_ID, fileId)
                 }
                 database.deleteDocument(
-                    databaseId = "67f16b4800153970e87a",
-                    collectionId = "67f1730c001c5348bb6a",
+                    databaseId = BuildConfig.DATABASE_ID,
+                    collectionId = BuildConfig.SUBSCRIPTION_COLLECTION,
                     documentId = document.id
                 )
             }
@@ -219,7 +224,7 @@ class AuthService(context: Context) {
             activity = activity,
             scopes = listOf(
                 "https://www.googleapis.com/auth/gmail.readonly"
-            )
+            ),
         )
         saveToken(context)
     }
@@ -231,44 +236,76 @@ class AuthService(context: Context) {
         val expiryTime = sharedPreferences.getLong("auth_token_expiry", 0)
         if (accessToken == null || System.currentTimeMillis() >= expiryTime) {
             println("Token expirado o nulo. Refrescando...")
-            return refreshAccessToken(context)
+            return manualRefreshGoogleToken(context)
         }
         return accessToken
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun refreshAccessToken(context: Context): String? {
-        return try {
-            val session = account.updateSession("current")
-            val newAccessToken = session.providerAccessToken
-            val expiryMillis = Instant.parse(session.expire).toEpochMilli()
-            val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-
-            with(sharedPreferences.edit()) {
-                putString("auth_token", newAccessToken)
-                putLong("auth_token_expiry", expiryMillis)
-                apply()
-            }
-            newAccessToken
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend private fun saveToken(context: Context) {
+    private suspend fun saveToken(context: Context) {
         val session = account.getSession("current")
         val googleToken = session.providerAccessToken
-        val expiryTimeString = session.expire
-        val expiryMillis = Instant.parse(expiryTimeString).toEpochMilli()
-
+        val expiryMillis = System.currentTimeMillis() + (58 * 60 * 1000)
         val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
             putString("auth_token", googleToken)
             putLong("auth_token_expiry", expiryMillis)
             apply()
         }
+
+        println("Token y expiration guardados correctamente. Expira en: $expiryMillis")
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun manualRefreshGoogleToken(context: Context): String? = withContext(Dispatchers.IO) {
+        val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val refreshToken = sharedPreferences.getString("refresh_token", null)
+
+        if (refreshToken == null) {
+            println("No hay refresh_token guardado.")
+            return@withContext null
+        }
+
+        val clientId = "591711405548-cnq5eu6k5sv4dkgmc2lernr60dfnstom.apps.googleusercontent.com"
+        val clientSecret = "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"
+        val url = URL("https://oauth2.googleapis.com/token")
+
+        val postData = "client_id=$clientId&client_secret=$clientSecret&refresh_token=$refreshToken&grant_type=refresh_token"
+
+        val conn = url.openConnection() as HttpURLConnection
+        conn.requestMethod = "POST"
+        conn.doOutput = true
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+
+        try {
+            conn.outputStream.use { os ->
+                val input = postData.toByteArray(Charsets.UTF_8)
+                os.write(input, 0, input.size)
+            }
+
+            val response = conn.inputStream.bufferedReader().use { it.readText() }
+            println("Respuesta de refresh: $response")
+
+            val json = JSONObject(response)
+            val newAccessToken = json.getString("access_token")
+            val expiresIn = json.getLong("expires_in") * 1000 // en milisegundos
+            val expiryMillis = System.currentTimeMillis() + expiresIn
+
+            with(sharedPreferences.edit()) {
+                putString("auth_token", newAccessToken)
+                putLong("auth_token_expiry", expiryMillis)
+                apply()
+            }
+
+            newAccessToken
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        } finally {
+            conn.disconnect()
+        }
+    }
+
 
     private fun generateRandomId(length: Int = 36): String {
         val charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
